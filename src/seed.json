@@ -1,0 +1,235 @@
+{
+ "config": {
+  "version": 2,
+  "roles": [
+   {
+    "code": "DEV",
+    "label": "Développeur front / back",
+    "court": "Dev",
+    "jours": 116,
+    "poids": 3,
+    "note": "2,5 j/sem toute l'année"
+   },
+   {
+    "code": "DES",
+    "label": "Designer / PO",
+    "court": "Design / PO",
+    "jours": 58,
+    "poids": 1,
+    "note": "1,25 j/sem toute l'année"
+   },
+   {
+    "code": "SEO",
+    "label": "SEO / GEO",
+    "court": "SEO / GEO",
+    "jours": 69,
+    "poids": 1,
+    "note": "1,5 j/sem toute l'année"
+   }
+  ],
+  "tailles": {
+   "XS": 2,
+   "S": 5,
+   "M": 10,
+   "L": 20,
+   "XL": 40,
+   "XXL": 60
+  },
+  "maxAjouts": 5
+ },
+ "projets": [
+  {
+   "id": "inc-support",
+   "ordre": 1,
+   "socle": true,
+   "titre": "Support des usagers par e-mail",
+   "desc": "Réponses aux usagers, signalements de lieux ou de consignes erronés.",
+   "contient": [],
+   "precis": true,
+   "efforts": {
+    "DES": "S",
+    "SEO": "XS"
+   }
+  },
+  {
+   "id": "inc-b2b2c",
+   "ordre": 2,
+   "socle": true,
+   "titre": "Maintenance B2B2C",
+   "desc": "Évolution des slugs et des URL, demandes de partenaires stratégiques, assistant et carte en maintenance.",
+   "contient": [],
+   "precis": true,
+   "efforts": {
+    "DEV": "M",
+    "DES": "XS"
+   }
+  },
+  {
+   "id": "inc-conformite",
+   "ordre": 3,
+   "socle": true,
+   "titre": "Cybersécurité, accessibilité, éco-conception",
+   "desc": "Efforts réguliers pour rester conformes aux exigences beta.gouv.",
+   "contient": [],
+   "precis": true,
+   "taille": "L",
+   "roles": [
+    "DEV",
+    "DES"
+   ],
+   "efforts": {
+    "DEV": 20,
+    "DES": 8
+   }
+  },
+  {
+   "id": "inc-rituels",
+   "ordre": 4,
+   "socle": true,
+   "titre": "Rituels, coordination et pilotage",
+   "desc": "Sprints, comités, séminaires, suivi des KR, rôle de PO.",
+   "contient": [],
+   "precis": true,
+   "efforts": {
+    "DEV": "S",
+    "DES": 8,
+    "SEO": "S"
+   }
+  },
+  {
+   "id": "ep-site-vitrine",
+   "ordre": 10,
+   "titre": "Améliorations du site Que faire",
+   "desc": "Une série de petites améliorations qui rendent le site plus agréable et plus fiable.",
+   "contient": [
+    "Carte pré-chargée, sans saisir d'adresse",
+    "Carte sur mobile avec un bouton dédié",
+    "Correction des bugs de la carte et du site",
+    "Recueil du taux de compréhension intégré au site, sans pop-up",
+    "Retravailler le haut des fiches pour que l'information arrive plus vite à la navigation, notamment sur mobile",
+    "Différencier les fiches en fonction de l'intention des usagers, en déterminant le meilleur parcours possible pour chaque fiche, pour optimiser les VO et répondre au besoin des usagers"
+   ],
+   "precis": true,
+   "efforts": {
+    "DEV": "L",
+    "DES": "M"
+   }
+  },
+  {
+   "id": "ep-carte-assistant",
+   "ordre": 11,
+   "titre": "Refonte de la carte dans le site Que faire",
+   "desc": "Un outil plus rapide et plus fluide, qui répond mieux aux besoins des usagers.",
+   "contient": [
+    "Chargement automatique et mode liste plus propre",
+    "Fiche détaillée optimisée",
+    "Remontée d'informations et de modifications facilitée",
+    "Alignement du fonctionnement de la carte de l'assistant V2 sur la carte du site Que faire (ex. : les points s'affichent de manière dynamique)",
+    "Dette technique à corriger",
+    "Pouvoir mieux gérer les pinpoints très proches",
+    "Améliorer l'expérience des filtres",
+    "Supprimer le format tablette, qui n'est pas toujours cohérent, et repenser les formats de la carte pour qu'elle soit utilisable au mieux sur mobile",
+    "Mieux gérer l'UX « Aucun résultat »"
+   ],
+   "precis": true,
+   "efforts": {
+    "DEV": "L",
+    "DES": "M"
+   }
+  },
+  {
+   "id": "ep-solutions",
+   "ordre": 12,
+   "titre": "Solutions en ligne et à domicile sur le site",
+   "desc": "Rendre consultables sur Que faire les solutions en ligne, à domicile et les lieux.",
+   "contient": [],
+   "precis": false,
+   "taille": "L",
+   "roles": [
+    "DEV",
+    "DES",
+    "SEO"
+   ]
+  },
+  {
+   "id": "ep-triptyque",
+   "ordre": 13,
+   "titre": "Restructurer les gestes (consignes et solutions) en pensant à un triptyque Réparer - Réemployer - Recycler",
+   "desc": "Retravailler consignes et gestes pour intégrer « Prêter » dans « Réemployer » et mieux visibiliser ce geste. Permettrait aussi de simplifier la compréhension. L'idée n'est pas de perdre la précision, mais de visibiliser le triptyque et de faciliter l'administration du suivi des gestes.",
+   "contient": [],
+   "precis": true,
+   "efforts": {
+    "SEO": "M",
+    "DES": "S",
+    "DEV": "S"
+   }
+  },
+  {
+   "id": "ep-seo-geo",
+   "ordre": 14,
+   "titre": "SEO et GEO",
+   "desc": "Des contenus propres, bien référencés et faciles à reprendre par les IA.",
+   "contient": [
+    "Terminer la rationalisation des fiches (plus de /dechet). À date (nov. 2026), 163 anciennes fiches (/dechet) ont été rationalisées et migrées (/categories). Sur un total de 425, il reste 262 URL à traiter et à potentiellement regrouper en familles, ou dont les contenus sont à revoir.",
+    "Rendre le site lisible par les IA, avec d'autres formats que le HTML",
+    "Visibiliser auprès des IA GEO la hiérarchie des gestes, la fiabilité et la paternité de l'information, mettre en avant dans la mesure du possible le plus de finesse possible dans la réponse",
+    "Mesurer la part de voix de Que faire dans les réponses des IA"
+   ],
+   "precis": true,
+   "efforts": {
+    "SEO": "XL",
+    "DEV": "M",
+    "DES": "M"
+   }
+  },
+  {
+   "id": "ep-opendata-consignes",
+   "ordre": 15,
+   "titre": "Enrichir l'open data des consignes",
+   "desc": "Faire de la base des consignes une donnée de référence, issue du site.",
+   "contient": [
+    "Ajouter la hiérarchie des gestes et les synonymes",
+    "Mieux signaler les consignes à spécificités locales",
+    "Clés de jointure avec l'open data des solutions, pour faciliter la communication et l'interopérabilité entre les deux BDD et rendre l'UX d'usager plus poussée pour nos réutilisateurs",
+    "Notation rapide de la donnée par les réutilisateurs"
+   ],
+   "precis": true,
+   "efforts": {
+    "DEV": "M",
+    "SEO": "S",
+    "DES": "XS"
+   }
+  },
+  {
+   "id": "ep-visibilite",
+   "ordre": 16,
+   "titre": "Visibilité et communauté",
+   "desc": "Faire connaître Que faire et ses données ouvertes.",
+   "contient": [
+    "En coop bizdev, organiser un hackathon open data avec data.gouv",
+    "Mieux comprendre qui sont nos réutilisateurs et les intégrer dans la construction de nos BDD"
+   ],
+   "precis": true,
+   "efforts": {
+    "DES": "M",
+    "SEO": "S",
+    "DEV": "XS"
+   }
+  },
+  {
+   "id": "ep-pilotage",
+   "ordre": 18,
+   "titre": "Pilotage et connaissance des usagers",
+   "desc": "Mieux mesurer notre impact et mieux connaître les publics.",
+   "contient": [
+    "Harmoniser la mesure d'impact (PostHog, Metabase)",
+    "Déterminer des profils d'usagers à partir des informations actuelles (enquêtes, études, etc.) pour affiner la segmentation de nos usagers"
+   ],
+   "precis": true,
+   "efforts": {
+    "DES": "M",
+    "DEV": "XS"
+   }
+  }
+ ]
+}
