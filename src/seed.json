@@ -20,8 +20,8 @@
    },
    {
     "code": "SEO",
-    "label": "SEO / GEO",
-    "court": "SEO / GEO",
+    "label": "Chargée de contenu & SEO",
+    "court": "Contenu & SEO",
     "jours": 69,
     "poids": 1,
     "note": "1,5 j/sem toute l'année"
@@ -213,6 +213,23 @@
    "efforts": {
     "DES": "M",
     "SEO": "S",
+    "DEV": "XS"
+   }
+  },
+  {
+   "id": "ep-ecosysteme",
+   "ordre": 17,
+   "titre": "Écosystème, parcours éditoriaux et contenus saisonniers",
+   "desc": "Inscrire Que faire dans son écosystème et enrichir les contenus éditoriaux autour des gestes.",
+   "contient": [
+    "Plus de synergies avec les autres start-ups et l'ADEME, pour travailler la notion d'écosystème et booster le linking",
+    "Développer les parcours éditoriaux autour de la réduction, de la réparation et de la consommation responsable",
+    "Une stratégie de contenus saisonniers et événementiels"
+   ],
+   "precis": true,
+   "efforts": {
+    "SEO": "L",
+    "DES": "S",
     "DEV": "XS"
    }
   },
