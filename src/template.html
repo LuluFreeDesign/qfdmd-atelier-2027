@@ -101,6 +101,11 @@ ul.contient li{margin:2px 0}
 .card{display:flex;flex-direction:column;gap:12px;padding-top:16px;border-top:2px solid #000}
 .card h3{font-size:20px}
 .card p.desc{margin:0;font-size:15px}
+.adjust{border:2px solid #000;padding:14px}
+.adjust-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:12px}
+.adjust .field{display:flex;flex-direction:column;gap:4px}
+.adj-in{display:inline-flex;align-items:center;gap:6px;font-weight:700}
+.adj-in input{width:100%;min-width:0;border:2px solid #000;padding:6px 8px;font:inherit}
 .card-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:auto}
 .panel{border:2px solid #000;padding:24px;margin:0 0 32px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
@@ -444,12 +449,22 @@ function baseSize(p){ return p.precis ? nearestSize(sumDays(baseDays(p))) : p.ta
 function days(p, estim){
   const b=baseDays(p);
   const o = estim && estim[p.id];
+  if(o && typeof o==='object'){ const res={}; for(const k of roleCodes()){ const v = k in o ? Number(o[k]) : b[k]; if(v>0) res[k]=v; } return res; }
   if(!o || o===baseSize(p)) return b;
   const tot=sumDays(b)||1; const f=tailleJ(o)/tot; const res={};
   for(const k in b) res[k]=r05(b[k]*f);
   return res;
 }
 function total(p, estim){ return sumDays(days(p, estim)); }
+function estimSize(p, e){ return typeof e==='string' ? e : nearestSize(sumDays(days(p, {[p.id]:e}))); }
+function cleanEstim(e){
+  const out={}; if(!e || typeof e!=='object') return out;
+  for(const [k,v] of Object.entries(e)){
+    if(typeof v==='string') out[String(k)]=v.slice(0,8);
+    else if(v && typeof v==='object'){ const o={}; for(const [r,n] of Object.entries(v)){ const x=Number(n); if(isFinite(x) && x>=0 && x<=400) o[String(r).slice(0,12)]=r05(x); } out[String(k)]=o; }
+  }
+  return out;
+}
 
 function allProjets(){
   const base = S.mode==='shared' ? S.projetsDb : SEED.projets.map(c=>cleanProjet(c));
@@ -463,7 +478,7 @@ function jeux(){ return allProjets().filter(p=>!p.socle); }
 function load(ids, estim){
   const map=byId(); const res={};
   for(const r of roles()) res[r.code]={cap:Number(r.jours)||0, inc:0, sel:0};
-  for(const p of Object.values(map)) if(p.socle){ const d=baseDays(p); for(const k in d) if(res[k]) res[k].inc+=d[k]; }
+  for(const p of Object.values(map)) if(p.socle){ const d=days(p, estim); for(const k in d) if(res[k]) res[k].inc+=d[k]; }
   for(const id of ids){ const p=map[id]; if(!p||p.socle) continue; const d=days(p, estim); for(const k in d) if(res[k]) res[k].sel+=d[k]; }
   for(const k in res){ const x=res[k]; x.total=x.inc+x.sel; x.over=Math.max(0,x.total-x.cap); }
   return res;
@@ -495,7 +510,7 @@ function parseCodes(text){
     try{
       const o=JSON.parse(b64d(part.slice(CODE_PREFIX.length)));
       if(!o || !Array.isArray(o.g)) throw new Error('format');
-      out.push({prenom:String(o.p||'Anonyme').slice(0,40), garde:o.g.map(String).slice(0,200), top:Array.isArray(o.t)?o.t.map(String).slice(0,TOP_N):[], estim:(o.e&&typeof o.e==='object')?o.e:{},
+      out.push({prenom:String(o.p||'Anonyme').slice(0,40), garde:o.g.map(String).slice(0,200), top:Array.isArray(o.t)?o.t.map(String).slice(0,TOP_N):[], estim:cleanEstim(o.e),
         projets:(Array.isArray(o.c)?o.c:[]).slice(0,maxAjouts()).map(c=>cleanProjet(Object.assign({}, c, {origine:'equipe', auteurPrenom:o.p||''}))).filter(Boolean)});
     }catch(e){ errs.push(part); }
   }
@@ -523,7 +538,7 @@ function switchToLocalWrite(){ if(S.localWrite) return; S.localWrite=true; lsSav
 /* ---------- Connexion ---------- */
 function cleanMe(m){
   const arr = a => Array.isArray(a) ? a.map(String) : [];
-  const estim = {}; if(m && m.estim && typeof m.estim==='object') for(const [k,v] of Object.entries(m.estim)) if(typeof v==='string') estim[String(k)]=v;
+  const estim = cleanEstim(m && m.estim);
   return {prenom:String((m&&m.prenom)||'').slice(0,40), garde:arr(m&&m.garde), laisse:arr(m&&m.laisse), top:arr(m&&m.top), estim, envoye:!!(m&&m.envoye), importe:!!(m&&m.importe)};
 }
 async function connect(){
@@ -600,7 +615,7 @@ function clampView(v){
 function go(v){ if(v==='tri' && S.view==='top') S.forceBilan=true; if(location.hash==='#'+v) route(); else location.hash='#'+v; }
 function route(){
   S.view=(location.hash||'').slice(1)||'prenom';
-  S.editing=null; render(true); if(window.scrollTo) try{ window.scrollTo(0,0); }catch(e){}
+  S.editing=null; S.adjust=null; render(true); if(window.scrollTo) try{ window.scrollTo(0,0); }catch(e){}
 }
 function stepNav(prev, next){
   return `<div class="stepnav"><span>${prev?`<button class="btn sec" data-act="go" data-to="${prev.to}">Précédent : ${esc(prev.label)}</button>`:''}</span><span>${next?`<button class="btn" data-act="${next.act||'go'}" data-to="${next.to||''}" ${next.disabled?'disabled':''}>${esc(next.label)}</button>`:''}</span></div>`;
@@ -668,11 +683,28 @@ function fillProjets(){
       <h3 style="font-size:18px">${esc(p.titre)}</h3>
       ${p.desc?`<p class="desc">${esc(p.desc)}</p>`:''}
       ${contientHtml(p)}
-      <div class="chips">${chipsHtml(p)}</div>
-      <div class="card-foot"><span class="days">${fmt(total(p))} j au total</span><span>${canEdit(p)?`<button class="btn ghost" data-act="edit" data-id="${esc(p.id)}">Modifier</button>`:''}${canDelete(p)?(S.confirmDel===p.id?`<button class="btn sm" style="background:var(--corail-texte);box-shadow:0 4px 0 #7d1f1b" data-act="del-ok" data-id="${esc(p.id)}">Confirmer la suppression</button> <button class="btn ghost" data-act="del-no">Annuler</button>`:`<button class="btn ghost" style="color:var(--corail-texte)" data-act="del" data-id="${esc(p.id)}">Supprimer</button>`):''}</span></div>
+      ${S.adjust===p.id ? adjustHtml(p) : `<div class="chips">${chipsHtml(p, S.me.estim)}</div>`}
+      <div class="card-foot"><span class="days">${fmt(total(p, S.me.estim))} j au total${S.me.estim[p.id]?` <span class="small muted" style="font-weight:400">(prévu : ${fmt(total(p))} j)</span>`:''}</span><span>${!canDelete(p) && S.adjust!==p.id ?`<button class="btn ghost" data-act="adj" data-id="${esc(p.id)}" aria-label="Ajuster les jours de « ${esc(p.titre)} »">Ajuster les jours</button>`:''}${canEdit(p)?`<button class="btn ghost" data-act="edit" data-id="${esc(p.id)}">Modifier</button>`:''}${canDelete(p)?(S.confirmDel===p.id?`<button class="btn sm" style="background:var(--corail-texte);box-shadow:0 4px 0 #7d1f1b" data-act="del-ok" data-id="${esc(p.id)}">Confirmer la suppression</button> <button class="btn ghost" data-act="del-no">Annuler</button>`:`<button class="btn ghost" style="color:var(--corail-texte)" data-act="del" data-id="${esc(p.id)}">Supprimer</button>`):''}</span></div>
     </article>`;
   el.innerHTML = `<section class="group"><div class="group-h"><h2>Projets à arbitrer</h2></div><div class="cards">${js.map(card).join('')}</div></section>
     <section class="group"><div class="group-h"><h2>Temps incompressible</h2></div><div class="cards">${inc.map(card).join('')}</div></section>`;
+}
+function adjustHtml(p){
+  const d=days(p, S.me.estim), b=baseDays(p);
+  return `<div class="adjust" role="group" aria-label="Jours par poste pour « ${esc(p.titre)} »">
+    <div class="adjust-grid">${roles().map(r=>`<label class="field"><span class="lbl">${esc(court(r.code))}</span><span class="adj-in"><input type="number" inputmode="decimal" min="0" max="400" step="0.5" data-adj="${esc(r.code)}" value="${d[r.code]||0}"> j</span><span class="small muted">prévu : ${fmt(b[r.code]||0)} j</span></label>`).join('')}</div>
+    <p class="err" id="adj-err" role="alert"></p>
+    <div class="form-actions" style="margin-top:12px"><button class="btn sm" data-act="adj-ok" data-id="${esc(p.id)}">Valider</button><button class="btn sec sm" data-act="adj-no">Annuler</button>${S.me.estim[p.id]?`<button class="btn ghost" data-act="adj-reset" data-id="${esc(p.id)}">Revenir au prévu</button>`:''}</div></div>`;
+}
+function saveAdjust(id){
+  const p=byId()[id]; if(!p) return;
+  const o={}; let bad=false;
+  document.querySelectorAll('.adjust input[data-adj]').forEach(i=>{ const v=Number(String(i.value).replace(',','.')); if(i.value==='' ) o[i.dataset.adj]=0; else if(!isFinite(v)||v<0||v>400) bad=true; else o[i.dataset.adj]=r05(v); });
+  if(bad){ $('#adj-err').textContent='Indiquez un nombre de jours entre 0 et 400.'; return; }
+  if(!Object.values(o).some(v=>v>0)){ $('#adj-err').textContent='Indiquez au moins un poste avec des jours.'; return; }
+  const b=baseDays(p); const same=roleCodes().every(k=>(o[k]||0)===(b[k]||0));
+  if(same) delete S.me.estim[id]; else S.me.estim[id]=o;
+  S.adjust=null; changed(); fillProjets(); renderSteps(); announce('Jours ajustés.');
 }
 function openForm(id){
   S.editing=id;
@@ -821,7 +853,7 @@ function renderBilan(){
   if(!g.length) verdict=`<div class="verdict ko"><div class="ico">?</div><div><h2>Aucun projet gardé</h2></div></div>`;
   else if(over.length) verdict=`<div class="verdict ko"><div class="ico">⚠</div><div><h2>Ça ne rentre pas : ${fmt(over.reduce((t,o)=>t+o.over,0))} jours de trop</h2></div></div>`;
   else verdict=`<div class="verdict ok"><div class="ico">✓</div><div><h2>Ça rentre !</h2></div></div>`;
-  const reeval=p=>{ const b=baseSize(p), cur=estim[p.id]||b; return `<label class="reeval ${cur!==b?'changed':''}">Taille <select data-estim="${esc(p.id)}" aria-label="Réévaluer la taille de « ${esc(p.titre)} »">${sizes().map(([k,v])=>`<option value="${esc(k)}" ${cur===k?'selected':''}>${esc(k)}${k===b?' (prévu)':''}</option>`).join('')}</select></label>`; };
+  const reeval=p=>{ const b=baseSize(p), cur=estim[p.id]?estimSize(p, estim[p.id]):b; return `<label class="reeval ${cur!==b?'changed':''}">Taille <select data-estim="${esc(p.id)}" aria-label="Réévaluer la taille de « ${esc(p.titre)} »">${sizes().map(([k,v])=>`<option value="${esc(k)}" ${cur===k?'selected':''}>${esc(k)}${k===b?' (prévu)':''}</option>`).join('')}</select></label>`; };
   S.openCost = S.openCost || {};
   const costly = g.length ? roles().map(r=>{
     const items=g.map(id=>m[id]).filter(p=>days(p,estim)[r.code]).sort((a,b)=>days(b,estim)[r.code]-days(a,estim)[r.code]);
@@ -896,7 +928,7 @@ function computeSynthese(){
   const N=ps.length; const st={};
   for(const p of jeux()) st[p.id]={p, n:0, ntop:0, score:0, plus:0, moins:0};
   for(const x of ps){
-    for(const id of x.garde){ const s=st[id]; if(!s) continue; s.n++; s.score+=1; const e=x.estim&&x.estim[id]; if(e){ const b=SIZE_ORDER.indexOf(baseSize(s.p)), v=SIZE_ORDER.indexOf(e); if(v>b) s.plus++; if(v<b) s.moins++; } }
+    for(const id of x.garde){ const s=st[id]; if(!s) continue; s.n++; s.score+=1; const e=x.estim&&x.estim[id]; if(e){ const b=SIZE_ORDER.indexOf(baseSize(s.p)), v=SIZE_ORDER.indexOf(estimSize(s.p, e)); if(v>b) s.plus++; if(v<b) s.moins++; } }
     x.top.forEach((id,i)=>{ const s=st[id]; if(!s) return; s.ntop++; s.score+=TOP_N-i; });
   }
   const rows=Object.values(st).sort((a,b)=>b.score-a.score||b.n-a.n||a.p.titre.localeCompare(b.p.titre));
@@ -998,6 +1030,10 @@ document.addEventListener('click', e=>{
   else if(act==='del'){ S.confirmDel=id; fillProjets(); }
   else if(act==='del-no'){ S.confirmDel=null; fillProjets(); }
   else if(act==='del-ok') deleteProjet(id);
+  else if(act==='adj'){ S.adjust=id; fillProjets(); const i=document.querySelector('.adjust input'); if(i) i.focus(); }
+  else if(act==='adj-no'){ S.adjust=null; fillProjets(); }
+  else if(act==='adj-ok') saveAdjust(id);
+  else if(act==='adj-reset'){ delete S.me.estim[id]; S.adjust=null; changed(); fillProjets(); renderSteps(); announce('Jours remis au prévu.'); }
   else if(act==='keep') fly(true);
   else if(act==='leave') fly(false);
   else if(act==='to-bilan'){ S.forceBilan=true; renderBilan(); }
