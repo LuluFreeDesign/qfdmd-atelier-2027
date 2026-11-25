@@ -386,6 +386,9 @@ h1{font-size:22px;line-height:1.2}
 .stp-c:focus-within{outline:3px solid var(--vert);outline-offset:1px}
 .stp-u{display:flex;align-items:center;padding:0 10px 0 4px;font-weight:600;color:var(--encre-2)}
 .stp-e{min-height:1.4em}
+.coin{display:inline-block;width:1.35em;height:1.35em;vertical-align:-.35em;margin-left:.1em;border-radius:50%}
+.ag-val .coin,.stp-e .coin,.small .coin,table .coin{width:1.5em;height:1.5em}
+@media (forced-colors:active){ .coin{forced-color-adjust:none} }
 .acard-f{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;border-top:1px solid var(--gris-2);padding-top:8px}
 .zero-txt{font-weight:600;color:var(--corail-texte)}
 .acard-msg{font-size:13px;font-weight:600;color:var(--corail-texte)}
@@ -467,6 +470,11 @@ function tm(e){ return (e||0)*taux(); }
 const eur = n => { const v=Math.round(tm(n)); return NUM.format(v)+'\u00a0'+(Math.abs(v)>1?monnaie():monnaieSing()); };
 const eurNu = n => NUM.format(Math.round(tm(n)));
 const eurJour = n => fmt(tm(n))+'\u00a0'+monnaie();
+/* Version affichée : valeur suivie du logo de la monnaie (le mot reste pour les lecteurs d'écran) */
+const COIN_SRC = '__COIN__';
+const coin = () => `<img class="coin" src="${COIN_SRC}" alt="${esc(monnaie())}" width="20" height="20">`;
+const eurH = n => NUM.format(Math.round(tm(n)))+'\u00a0'+coin();
+const eurJourH = n => fmt(tm(n))+'\u00a0'+coin();
 const plural = (n, a, b) => n>1 ? b : a;
 const rid = () => 'eq-' + Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-4);
 const uniq = a => [...new Set(a)];
@@ -832,21 +840,22 @@ async function submitForm(){
 
 /* ----- Jauges ----- */
 function gaugeCell(o){
-  const {key,label,x,unit,shake}=o; const f = unit==='€' ? eur : (n=>fmt(n)+' j'); const fv = unit==='€' ? eurNu : f;
+  const {key,label,x,unit,shake}=o; const f = unit==='€' ? eur : (n=>fmt(n)+' j'); const fv = unit==='€' ? eurNu : f; const fh = unit==='€' ? eurH : f;
   const den=Math.max(x.cap,x.total,1);
   const pInc=Math.min(x.inc,x.cap)/den*100; const selIn=Math.max(0,Math.min(x.sel,x.cap-x.inc)); const pSel=selIn/den*100; const pOver=x.over/den*100;
   const full = x.over<=0.0001 && (unit==='€' ? x.free<1 : x.free<0.5);
   const state = x.over>0.0001 ? 'over' : full ? 'full' : '';
   const status = x.over>0.0001 ? '⚠ '+f(x.over)+' de trop' : full ? 'Plus rien de libre' : f(x.free)+(unit==='€'?' restants':' libres');
+  const statusH = x.over>0.0001 ? '⚠ '+fh(x.over)+' de trop' : full ? 'Plus rien de libre' : fh(x.free)+(unit==='€'?' restants':' libres');
   const lab=`${label} : ${f(x.total)} sur ${f(x.cap)}, ${status}`;
   return `<div class="ag ${state} ${shake?'shake':''}" data-g="${esc(key)}" role="img" aria-label="${esc(lab)}">
-    <div class="ag-top" aria-hidden="true"><span class="g-label">${esc(label)}</span><b class="ag-val">${fv(x.total)} <span class="muted">/ ${fv(x.cap)}</span></b></div>
+    <div class="ag-top" aria-hidden="true"><span class="g-label">${esc(label)}</span><b class="ag-val">${fv(x.total)} <span class="muted">/ ${fv(x.cap)}</span>${unit==='€'?' '+coin():''}</b></div>
     <span class="g-track" aria-hidden="true"><span class="g-inc" style="width:${pInc}%"></span>${pSel>0?`<span class="g-sel" style="width:${pSel}%"></span>`:''}${pOver>0?`<span class="g-over" style="width:${pOver}%"></span>`:''}${x.over>0?`<span class="g-cap" style="left:calc(${x.cap/den*100}% - 1px)"></span>`:''}</span>
-    <span class="ag-st" aria-hidden="true">${status}</span></div>`;
+    <span class="ag-st" aria-hidden="true">${statusH}</span></div>`;
 }
 function gaugesHtml(L, opts){
   opts=opts||{}; const sh=opts.shake||[];
-  return `<div class="agrid">${roles().map(r=>gaugeCell({key:r.code,label:court(r.code),x:L[r.code],unit:'j',shake:sh.includes(r.code)})).join('')}${gaugeCell({key:'€',label:'Budget ('+monnaie()+')',x:L['€'],unit:'€',shake:sh.includes('€')})}</div>
+  return `<div class="agrid">${roles().map(r=>gaugeCell({key:r.code,label:court(r.code),x:L[r.code],unit:'j',shake:sh.includes(r.code)})).join('')}${gaugeCell({key:'€',label:'Budget',x:L['€'],unit:'€',shake:sh.includes('€')})}</div>
     <div class="legend"><span><i class="lg-inc"></i>Temps incompressible</span><span><i class="lg-sel"></i>${opts.team?'Panier d’équipe':'Mes projets'}</span><span><i class="lg-over"></i>Dépassement</span></div>`;
 }
 
@@ -935,7 +944,7 @@ function fillJours(){
   if(el.firstChild && sig===joursSig){ refreshJours(); return; }
   joursSig=sig;
   const m=byId(); const l=laisse(); const inc=allProjets().filter(p=>p.socle);
-  const rates=roles().map(r=>`${esc(court(r.code))} ${esc(eurJour(tjm(r.code)))}`).join(' · ');
+  const rates=roles().map(r=>`${esc(court(r.code))} ${eurJourH(tjm(r.code))}`).join(' · ');
   const stepper=(p,r)=>{ const lab=court(r.code); return `<div class="stp" data-role="${esc(r.code)}">
       <label class="stp-l" for="al-${esc(p.id)}-${esc(r.code)}">${esc(lab)}</label>
       <div class="stp-c"><button type="button" class="stp-b" data-act="minus" data-id="${esc(p.id)}" data-role="${esc(r.code)}" aria-label="Enlever une demi-journée de ${esc(lab)} sur « ${esc(p.titre)} »">−</button><input class="stp-in" id="al-${esc(p.id)}-${esc(r.code)}" inputmode="decimal" autocomplete="off" data-alloc="${esc(p.id)}" data-role="${esc(r.code)}" value="0" aria-describedby="msg-${esc(p.id)}"><span class="stp-u" aria-hidden="true">j</span><button type="button" class="stp-b" data-act="plus" data-id="${esc(p.id)}" data-role="${esc(r.code)}" aria-label="Ajouter une demi-journée de ${esc(lab)} sur « ${esc(p.titre)} »">+</button></div>
@@ -944,7 +953,7 @@ function fillJours(){
     <div class="intro" style="margin-bottom:18px"><div><h1>Répartir les jours</h1>
       <p class="muted" style="margin:8px 0 0;max-width:70ch">Chaque projet gardé part de zéro. Indiquez combien de jours chaque métier y consacre, par demi-journée. Le temps incompressible est déjà compté. Si ça ne rentre pas, retirez des projets.</p></div></div>
     <div class="alloc-head" id="alloc-head"><div id="j-gauges"></div><div id="j-alert" role="status"></div></div>
-    <p class="small muted" style="margin:16px 0 0">Une journée coûte : ${rates}. Le budget de l'équipe est en ${esc(monnaie())}, la monnaie de l'atelier (1 000 € = ${NUM.format(1000*taux())} ${esc(monnaie())}).</p>
+    <p class="small muted" style="margin:16px 0 0">Une journée coûte : ${rates}. Le budget est en ${esc(monnaie())} ${coin()}, la monnaie de l'atelier : 1 000 € = ${NUM.format(1000*taux())} ${esc(monnaie())}.</p>
     <section class="group" style="margin-top:24px"><div class="group-h"><h2>Mes projets gardés (${g.length})</h2></div>
       ${g.length?`<div class="acards">${g.map(id=>{ const p=m[id]; return `<article class="acard" data-card="${esc(p.id)}">
         <div class="acard-h"><div><h3>${esc(p.titre)}</h3>${p.desc?`<p class="small muted" style="margin:4px 0 0">${esc(p.desc)}</p>`:''}</div><button class="btn ghost" data-act="leave-j" data-id="${esc(p.id)}" aria-label="Retirer « ${esc(p.titre)} »">Retirer</button></div>
@@ -956,7 +965,7 @@ function fillJours(){
     ${l.length?`<section class="group"><div class="group-h"><h2>Projets retirés (${l.length})</h2></div>
       <ul class="rows" style="max-width:760px">${l.map(id=>{ const p=m[id]; return `<li class="left"><div class="t"><strong>${esc(p.titre)}</strong></div><button class="btn sec sm" data-act="keep-j" data-id="${esc(id)}" aria-label="Remettre « ${esc(p.titre)} »">Remettre</button></li>`; }).join('')}</ul></section>`:''}
     <section class="group"><div class="group-h"><h2>Temps incompressible (déjà compté)</h2></div>
-      <ul class="rows inc-rows" style="max-width:760px">${inc.map(p=>`<li><div class="t"><strong>${esc(p.titre)}</strong><div class="chips" style="margin-top:4px">${chipsHtml(p)}</div></div><span class="days">${fmt(total(p))} j · ${eur(cost(p))}</span></li>`).join('')}</ul></section>
+      <ul class="rows inc-rows" style="max-width:760px">${inc.map(p=>`<li><div class="t"><strong>${esc(p.titre)}</strong><div class="chips" style="margin-top:4px">${chipsHtml(p)}</div></div><span class="days">${fmt(total(p))} j · ${eurH(cost(p))}</span></li>`).join('')}</ul></section>
     <div id="jours-nav"></div>`;
   refreshJours();
 }
@@ -967,7 +976,7 @@ function refreshJours(shake){
   const over=overRoles(L), ob=overBudget(L);
   const full=roles().filter(r=>L[r.code].over<=0.0001 && roomFor(L,r.code)<PAS).map(r=>court(r.code));
   let al='';
-  if(over.length||ob) al=`<div class="banner warn"><p><strong>Ça ne rentre pas :</strong> ${over.map(o=>fmt(o.over)+' j de trop en '+esc(court(o.code))).concat(ob?[eur(L['€'].over)+' au-delà du budget']:[]).join(', ')}. Baissez des jours ou retirez un projet.</p></div>`;
+  if(over.length||ob) al=`<div class="banner warn"><p><strong>Ça ne rentre pas :</strong> ${over.map(o=>fmt(o.over)+' j de trop en '+esc(court(o.code))).concat(ob?[eurH(L['€'].over)+' au-delà du budget']:[]).join(', ')}. Baissez des jours ou retirez un projet.</p></div>`;
   else if(full.length) al=`<div class="banner warn"><p><strong>Plus de jours disponibles en ${full.map(esc).join(', ')}.</strong> Pour en ajouter ailleurs, baissez un autre projet ou retirez-en un.</p></div>`;
   $('#j-alert').innerHTML=al;
   document.querySelectorAll('#jours-body .acard').forEach(card=>{
@@ -978,9 +987,9 @@ function refreshJours(shake){
       if(document.activeElement!==inp || inp.dataset.dirty!=='1') inp.value=fmt(v);
       s.querySelector('[data-act="minus"]').disabled = v<=0;
       s.querySelector('[data-act="plus"]').disabled = roomFor(L,code)<PAS;
-      s.querySelector('[data-eur]').textContent = v ? eur(v*tjm(code)) : '';
+      s.querySelector('[data-eur]').innerHTML = v ? eurH(v*tjm(code)) : '';
     });
-    card.querySelector('[data-tot]').innerHTML = tot ? `<b>${fmt(tot)} j</b> · <b>${eur(euros(d))}</b>` : `<span class="zero-txt">Aucun jour : à répartir ou à retirer</span>`;
+    card.querySelector('[data-tot]').innerHTML = tot ? `<b>${fmt(tot)} j</b> · <b>${eurH(euros(d))}</b>` : `<span class="zero-txt">Aucun jour : à répartir ou à retirer</span>`;
   });
   const zero=sansJours();
   const nav=$('#jours-nav');
@@ -1015,7 +1024,7 @@ function fillTop(){
   let h=`<ol class="rank" id="rank">`;
   list.forEach((id,i)=>{ const p=m[id];
     if(i===TOP_N) h+=`</ol><div class="cut">Hors top ${TOP_N} : gardé, sans priorité</div><ol class="rank" start="${TOP_N+1}" id="rank2">`;
-    h+=`<li draggable="true" data-id="${esc(id)}" class="${i<TOP_N?'top':''}"><span class="handle" aria-hidden="true">⋮⋮</span><span class="pos">${i+1}</span><div class="t"><strong>${esc(p.titre)}</strong><div class="small muted">${fmt(total(p,S.me.alloc))} j · ${eur(cost(p,S.me.alloc))}</div></div>
+    h+=`<li draggable="true" data-id="${esc(id)}" class="${i<TOP_N?'top':''}"><span class="handle" aria-hidden="true">⋮⋮</span><span class="pos">${i+1}</span><div class="t"><strong>${esc(p.titre)}</strong><div class="small muted">${fmt(total(p,S.me.alloc))} j · ${eurH(cost(p,S.me.alloc))}</div></div>
       <span class="mv"><button class="btn sec icon" data-act="up" data-id="${esc(id)}" ${i===0?'disabled':''} aria-label="Monter « ${esc(p.titre)} »">↑</button><button class="btn sec icon" data-act="down" data-id="${esc(id)}" ${i===list.length-1?'disabled':''} aria-label="Descendre « ${esc(p.titre)} »">↓</button></span></li>`; });
   h+=`</ol>`;
   const needName=!S.me.prenom.trim();
@@ -1081,13 +1090,13 @@ function fillSynthese(){
     ${voted.map((s,i)=>`<tr><td class="num"><span class="days">${i+1}</span></td><td><strong>${esc(s.p.titre)}</strong></td>
       <td><div class="share"><div class="bar"><span style="width:${s.n/N*100}%"></span></div><span class="small">${s.n}/${N}</span></div></td>
       <td class="num">${s.ntop}</td><td class="num"><span class="days">${s.score}</span></td><td class="num">${fmt(total(s.p,avg))} j${s.n>1&&s.max>s.min?`<div class="small muted">de ${fmt(s.min)} à ${fmt(s.max)} j</div>`:''}</td>
-      <td class="small">${Object.entries(days(s.p,avg)).map(([k,v])=>esc(court(k))+' '+fmt(v)+' j').join('<br>')}</td><td class="num">${eur(cost(s.p,avg))}</td><td>${signal(s.n,N)}</td></tr>`).join('')}
+      <td class="small">${Object.entries(days(s.p,avg)).map(([k,v])=>esc(court(k))+' '+fmt(v)+' j').join('<br>')}</td><td class="num">${eurH(cost(s.p,avg))}</td><td>${signal(s.n,N)}</td></tr>`).join('')}
     </tbody></table></div>`;
   if(zero.length) h+=`<p class="small muted" style="margin:10px 0 0"><strong>Personne ne les a gardés :</strong> ${zero.map(s=>esc(s.p.titre)).join(', ')}.</p>`;
   h+=`<h2 style="margin:26px 0 6px">Panier d'équipe proposé</h2>
     <p class="small muted" style="margin:0 0 10px">Projets pris dans l'ordre du classement, avec les jours moyens alloués, tant que ça rentre.</p>
     <div class="panel light">${gaugesHtml(load(teamSel, avg),{team:true})}</div>
-    <div class="team"><div class="panel"><h3>Ça rentre</h3><ul>${teamSel.map((id,i)=>`<li><span class="ic">${i+1}.</span><span>${esc(m[id].titre)} <span class="muted small">(${fmt(total(m[id],avg))} j · ${eur(cost(m[id],avg))})</span></span></li>`).join('')||'<li class="muted">Rien pour l\'instant.</li>'}</ul></div>
+    <div class="team"><div class="panel"><h3>Ça rentre</h3><ul>${teamSel.map((id,i)=>`<li><span class="ic">${i+1}.</span><span>${esc(m[id].titre)} <span class="muted small">(${fmt(total(m[id],avg))} j · ${eurH(cost(m[id],avg))})</span></span></li>`).join('')||'<li class="muted">Rien pour l\'instant.</li>'}</ul></div>
     <div class="panel"><h3>Ne rentre pas, malgré des votes</h3><ul>${out.map(o=>`<li class="out"><span class="ic">✕</span><span>${esc(o.s.p.titre)} <span class="small">(${o.s.n}/${N}, bloqué par ${o.wo.map(w=>esc(wcode(w.code))).join(', ')})</span></span></li>`).join('')||'<li class="muted">Tout ce qui a été gardé rentre.</li>'}</ul></div></div>`;
   h+=`<h2 style="margin:26px 0 10px">Le top ${TOP_N} de chacun et chacune</h2><div class="cols">${ps.map(p=>`<div class="col"><h3>${esc(p.prenom)}</h3><ol>${p.top.map(id=>`<li>${esc(m[id].titre)}</li>`).join('')}</ol>${p.garde.length>p.top.length?`<p class="small muted" style="margin:6px 0 0">+ ${p.garde.length-p.top.length} autre${p.garde.length-p.top.length>1?'s':''} gardé${p.garde.length-p.top.length>1?'s':''}</p>`:''}</div>`).join('')}</div>`;
   $('#syn-body').innerHTML=h;
