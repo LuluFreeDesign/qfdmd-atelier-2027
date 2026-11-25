@@ -101,11 +101,6 @@ ul.contient li{margin:2px 0}
 .card{display:flex;flex-direction:column;gap:12px;padding-top:16px;border-top:2px solid #000}
 .card h3{font-size:20px}
 .card p.desc{margin:0;font-size:15px}
-.adjust{border:2px solid #000;padding:14px}
-.adjust-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:12px}
-.adjust .field{display:flex;flex-direction:column;gap:4px}
-.adj-in{display:inline-flex;align-items:center;gap:6px;font-weight:700}
-.adj-in input{width:100%;min-width:0;border:2px solid #000;padding:6px 8px;font:inherit}
 .card-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:auto}
 .panel{border:2px solid #000;padding:24px;margin:0 0 32px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
@@ -351,6 +346,63 @@ h1{font-size:22px;line-height:1.2}
 @media (forced-colors:active){.bin{color:CanvasText}}
 .imp-top .panel{margin:0 0 32px!important}
 [hidden]{display:none!important}
+
+/* ===== Jauges compactes (jours par métier + budget) ===== */
+.agrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
+.ag{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ag-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.ag-val{font-weight:700;font-size:14px;white-space:nowrap}
+.ag-val .muted{font-weight:500}
+.ag-st{font-size:13px;color:var(--encre-2)}
+.ag.full .ag-st,.ag.over .ag-st{color:var(--corail-texte);font-weight:700}
+.ag.full .g-track{outline:2px solid var(--corail-texte);outline-offset:1px}
+.ag.shake .g-track{animation:wobble .25s ease 2}
+.legend{margin-top:10px}
+
+/* ===== Répartir les jours ===== */
+.alloc-head{position:sticky;top:var(--nav-h,58px);z-index:20;background:#fff;padding:14px 0 12px;border-bottom:2px solid #000;margin:0 -2px}
+.alloc-head .banner{margin:12px 0 0}
+.alloc-head .legend{margin-top:8px}
+.acards{display:flex;flex-direction:column;gap:16px}
+.acard{border:2px solid #8f8f8f;border-radius:4px;padding:16px 20px;background:#fff;display:flex;flex-direction:column;gap:10px}
+.acard.zero{border-style:dashed;border-color:#000}
+.acard-h{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.acard-h h3{font-size:17px}
+.acard-h .btn.ghost{flex:none;color:var(--corail-texte)}
+.acard-more summary{cursor:pointer;font-weight:600;margin-bottom:4px}
+.stps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.stp{display:flex;flex-direction:column;gap:6px;min-width:0}
+.stp-l{font-size:13px;font-weight:600}
+.stp-c{display:flex;align-items:stretch;border:2px solid #000;border-radius:4px;overflow:hidden;max-width:220px;background:#fff}
+.stp-b{flex:none;width:44px;min-height:44px;border:0;background:#fff;color:#000;font-size:22px;font-weight:600;cursor:pointer;line-height:1}
+.stp-b:first-child{border-right:2px solid #000}
+.stp-b:last-child{border-left:2px solid #000;background:#000;color:#fff}
+.stp-b:hover{background:var(--menthe);color:#000}
+.stp-b:last-child:hover{background:var(--vert);color:#fff}
+.stp-b[disabled]{background:#f2f2f2;color:#9a9a9a;cursor:not-allowed}
+.stp-b:focus-visible{outline:3px solid var(--vert);outline-offset:-3px}
+.stp-in{flex:1;min-width:0;width:100%;border:0;text-align:right;font-weight:700;font-size:17px;padding:6px 2px 6px 6px;background:#fff}
+.stp-in:focus{outline:none;background:#f4f4f4}
+.stp-c:focus-within{outline:3px solid var(--vert);outline-offset:1px}
+.stp-u{display:flex;align-items:center;padding:0 10px 0 4px;font-weight:600;color:var(--encre-2)}
+.stp-e{min-height:1.4em}
+.acard-f{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;border-top:1px solid var(--gris-2);padding-top:8px}
+.zero-txt{font-weight:600;color:var(--corail-texte)}
+.acard-msg{font-size:13px;font-weight:600;color:var(--corail-texte)}
+.inc-rows li{background:repeating-linear-gradient(135deg,#fff 0 9px,#f6f6f6 9px 11px)}
+@media (max-width:900px){ .agrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 20px} }
+@media (max-width:640px){
+  .alloc-head{padding:10px 0}
+  .alloc-head .legend{display:none}
+  .ag-st{font-size:12px}
+  .ag:not(.full):not(.over) .ag-st{display:none}
+  .stps{grid-template-columns:1fr;gap:12px}
+  .stp{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:12px;row-gap:2px}
+  .stp-c{max-width:180px}
+  .stp-e{grid-column:1/-1;text-align:right}
+  .acard{padding:16px}
+}
+@media (prefers-reduced-motion:reduce){ .ag.shake .g-track{animation:none} }
 </style>
 </head>
 <body>
@@ -374,28 +426,30 @@ h1{font-size:22px;line-height:1.2}
 </main>
 <div id="live" class="sr" aria-live="polite"></div>
 
-<script type="application/json" id="seed">{"config": {"version": 2, "roles": [{"code": "DEV", "label": "Développeur front / back", "court": "Dev", "jours": 116, "poids": 3, "note": "2,5 j/sem toute l'année"}, {"code": "DES", "label": "Designer / PO", "court": "Design / PO", "jours": 58, "poids": 1, "note": "1,25 j/sem toute l'année"}, {"code": "SEO", "label": "Chargée de contenu & SEO", "court": "Contenu & SEO", "jours": 69, "poids": 1, "note": "1,5 j/sem toute l'année"}], "tailles": {"XS": 2, "S": 5, "M": 10, "L": 20, "XL": 40, "XXL": 60}, "maxAjouts": 5}, "projets": [{"id": "inc-support", "ordre": 1, "socle": true, "titre": "Support des usagers par e-mail", "desc": "Réponses aux usagers, signalements de lieux ou de consignes erronés.", "contient": [], "precis": true, "efforts": {"DES": "S", "SEO": "XS"}}, {"id": "inc-b2b2c", "ordre": 2, "socle": true, "titre": "Maintenance B2B2C", "desc": "Évolution des slugs et des URL, demandes de partenaires stratégiques, assistant et carte en maintenance.", "contient": [], "precis": true, "efforts": {"DEV": "M", "DES": "XS"}}, {"id": "inc-conformite", "ordre": 3, "socle": true, "titre": "Cybersécurité, accessibilité, éco-conception", "desc": "Efforts réguliers pour rester conformes aux exigences beta.gouv.", "contient": [], "precis": true, "taille": "L", "roles": ["DEV", "DES"], "efforts": {"DEV": 20, "DES": 8}}, {"id": "inc-rituels", "ordre": 4, "socle": true, "titre": "Rituels, coordination et pilotage", "desc": "Sprints, comités, séminaires, suivi des KR, rôle de PO.", "contient": [], "precis": true, "efforts": {"DEV": "S", "DES": 8, "SEO": "S"}}, {"id": "ep-site-vitrine", "ordre": 10, "titre": "Améliorations du site Que faire", "desc": "Une série de petites améliorations qui rendent le site plus agréable et plus fiable.", "contient": ["Carte pré-chargée, sans saisir d'adresse", "Carte sur mobile avec un bouton dédié", "Correction des bugs de la carte et du site", "Recueil du taux de compréhension intégré au site, sans pop-up", "Retravailler le haut des fiches pour que l'information arrive plus vite à la navigation, notamment sur mobile", "Différencier les fiches en fonction de l'intention des usagers, en déterminant le meilleur parcours possible pour chaque fiche, pour optimiser les VO et répondre au besoin des usagers"], "precis": true, "efforts": {"DEV": "L", "DES": "M"}}, {"id": "ep-carte-assistant", "ordre": 11, "titre": "Refonte de la carte dans le site Que faire", "desc": "Un outil plus rapide et plus fluide, qui répond mieux aux besoins des usagers.", "contient": ["Chargement automatique et mode liste plus propre", "Fiche détaillée optimisée", "Remontée d'informations et de modifications facilitée", "Alignement du fonctionnement de la carte de l'assistant V2 sur la carte du site Que faire (ex. : les points s'affichent de manière dynamique)", "Dette technique à corriger", "Pouvoir mieux gérer les pinpoints très proches", "Améliorer l'expérience des filtres", "Supprimer le format tablette, qui n'est pas toujours cohérent, et repenser les formats de la carte pour qu'elle soit utilisable au mieux sur mobile", "Mieux gérer l'UX « Aucun résultat »"], "precis": true, "efforts": {"DEV": "L", "DES": "M"}}, {"id": "ep-solutions", "ordre": 12, "titre": "Solutions en ligne et à domicile sur le site", "desc": "Rendre consultables sur Que faire les solutions en ligne, à domicile et les lieux.", "contient": [], "precis": false, "taille": "L", "roles": ["DEV", "DES", "SEO"]}, {"id": "ep-triptyque", "ordre": 13, "titre": "Restructurer les gestes (consignes et solutions) en pensant à un triptyque Réparer - Réemployer - Recycler", "desc": "Retravailler consignes et gestes pour intégrer « Prêter » dans « Réemployer » et mieux visibiliser ce geste. Permettrait aussi de simplifier la compréhension. L'idée n'est pas de perdre la précision, mais de visibiliser le triptyque et de faciliter l'administration du suivi des gestes.", "contient": [], "precis": true, "efforts": {"SEO": "M", "DES": "S", "DEV": "S"}}, {"id": "ep-seo-geo", "ordre": 14, "titre": "SEO et GEO", "desc": "Des contenus propres, bien référencés et faciles à reprendre par les IA.", "contient": ["Terminer la rationalisation des fiches (plus de /dechet). À date (nov. 2026), 163 anciennes fiches (/dechet) ont été rationalisées et migrées (/categories). Sur un total de 425, il reste 262 URL à traiter et à potentiellement regrouper en familles, ou dont les contenus sont à revoir.", "Rendre le site lisible par les IA, avec d'autres formats que le HTML", "Visibiliser auprès des IA GEO la hiérarchie des gestes, la fiabilité et la paternité de l'information, mettre en avant dans la mesure du possible le plus de finesse possible dans la réponse", "Mesurer la part de voix de Que faire dans les réponses des IA"], "precis": true, "efforts": {"SEO": "XL", "DEV": "M", "DES": "M"}}, {"id": "ep-opendata-consignes", "ordre": 15, "titre": "Enrichir l'open data des consignes", "desc": "Faire de la base des consignes une donnée de référence, issue du site.", "contient": ["Ajouter la hiérarchie des gestes et les synonymes", "Mieux signaler les consignes à spécificités locales", "Clés de jointure avec l'open data des solutions, pour faciliter la communication et l'interopérabilité entre les deux BDD et rendre l'UX d'usager plus poussée pour nos réutilisateurs", "Notation rapide de la donnée par les réutilisateurs"], "precis": true, "efforts": {"DEV": "M", "SEO": "S", "DES": "XS"}}, {"id": "ep-visibilite", "ordre": 16, "titre": "Visibilité et communauté", "desc": "Faire connaître Que faire et ses données ouvertes.", "contient": ["En coop bizdev, organiser un hackathon open data avec data.gouv", "Mieux comprendre qui sont nos réutilisateurs et les intégrer dans la construction de nos BDD"], "precis": true, "efforts": {"DES": "M", "SEO": "S", "DEV": "XS"}}, {"id": "ep-ecosysteme", "ordre": 17, "titre": "Écosystème, parcours éditoriaux et contenus saisonniers", "desc": "Inscrire Que faire dans son écosystème et enrichir les contenus éditoriaux autour des gestes.", "contient": ["Plus de synergies avec les autres start-ups et l'ADEME, pour travailler la notion d'écosystème et booster le linking", "Développer les parcours éditoriaux autour de la réduction, de la réparation et de la consommation responsable", "Une stratégie de contenus saisonniers et événementiels"], "precis": true, "efforts": {"SEO": "L", "DES": "S", "DEV": "XS"}}, {"id": "ep-pilotage", "ordre": 18, "titre": "Pilotage et connaissance des usagers", "desc": "Mieux mesurer notre impact et mieux connaître les publics.", "contient": ["Harmoniser la mesure d'impact (PostHog, Metabase)", "Déterminer des profils d'usagers à partir des informations actuelles (enquêtes, études, etc.) pour affiner la segmentation de nos usagers"], "precis": true, "efforts": {"DES": "M", "DEV": "XS"}}]}</script>
+<script type="application/json" id="seed">{"config": {"version": 3, "roles": [{"code": "DEV", "label": "Développeur front / back", "court": "Dev", "jours": 116, "poids": 3, "note": "2,5 j/sem toute l'année", "tjm": 650}, {"code": "DES", "label": "Designer / PO", "court": "Design / PO", "jours": 58, "poids": 1, "note": "1,25 j/sem toute l'année", "tjm": 600}, {"code": "SEO", "label": "Chargée de contenu & SEO", "court": "Contenu & SEO", "jours": 69, "poids": 1, "note": "1,5 j/sem toute l'année", "tjm": 550}], "tailles": {"XS": 2, "S": 5, "M": 10, "L": 20, "XL": 40, "XXL": 60}, "maxAjouts": 5, "budget": null}, "projets": [{"id": "inc-support", "ordre": 1, "socle": true, "titre": "Support des usagers par e-mail", "desc": "Réponses aux usagers, signalements de lieux ou de consignes erronés.", "contient": [], "precis": true, "efforts": {"DES": "S", "SEO": "XS"}}, {"id": "inc-b2b2c", "ordre": 2, "socle": true, "titre": "Maintenance B2B2C", "desc": "Évolution des slugs et des URL, demandes de partenaires stratégiques, assistant et carte en maintenance.", "contient": [], "precis": true, "efforts": {"DEV": "M", "DES": "XS"}}, {"id": "inc-conformite", "ordre": 3, "socle": true, "titre": "Cybersécurité, accessibilité, éco-conception", "desc": "Efforts réguliers pour rester conformes aux exigences beta.gouv.", "contient": [], "precis": true, "taille": "L", "roles": ["DEV", "DES"], "efforts": {"DEV": 20, "DES": 8}}, {"id": "inc-rituels", "ordre": 4, "socle": true, "titre": "Rituels, coordination et pilotage", "desc": "Sprints, comités, séminaires, suivi des KR, rôle de PO.", "contient": [], "precis": true, "efforts": {"DEV": "S", "DES": 8, "SEO": "S"}}, {"id": "ep-site-vitrine", "ordre": 10, "titre": "Améliorations du site Que faire", "desc": "Une série de petites améliorations qui rendent le site plus agréable et plus fiable.", "contient": ["Carte pré-chargée, sans saisir d'adresse", "Carte sur mobile avec un bouton dédié", "Correction des bugs de la carte et du site", "Recueil du taux de compréhension intégré au site, sans pop-up", "Retravailler le haut des fiches pour que l'information arrive plus vite à la navigation, notamment sur mobile", "Différencier les fiches en fonction de l'intention des usagers, en déterminant le meilleur parcours possible pour chaque fiche, pour optimiser les VO et répondre au besoin des usagers"]}, {"id": "ep-carte-assistant", "ordre": 11, "titre": "Refonte de la carte dans le site Que faire", "desc": "Un outil plus rapide et plus fluide, qui répond mieux aux besoins des usagers.", "contient": ["Chargement automatique et mode liste plus propre", "Fiche détaillée optimisée", "Remontée d'informations et de modifications facilitée", "Alignement du fonctionnement de la carte de l'assistant V2 sur la carte du site Que faire (ex. : les points s'affichent de manière dynamique)", "Dette technique à corriger", "Pouvoir mieux gérer les pinpoints très proches", "Améliorer l'expérience des filtres", "Supprimer le format tablette, qui n'est pas toujours cohérent, et repenser les formats de la carte pour qu'elle soit utilisable au mieux sur mobile", "Mieux gérer l'UX « Aucun résultat »"]}, {"id": "ep-solutions", "ordre": 12, "titre": "Solutions en ligne et à domicile sur le site", "desc": "Rendre consultables sur Que faire les solutions en ligne, à domicile et les lieux.", "contient": []}, {"id": "ep-triptyque", "ordre": 13, "titre": "Restructurer les gestes (consignes et solutions) en pensant à un triptyque Réparer - Réemployer - Recycler", "desc": "Retravailler consignes et gestes pour intégrer « Prêter » dans « Réemployer » et mieux visibiliser ce geste. Permettrait aussi de simplifier la compréhension. L'idée n'est pas de perdre la précision, mais de visibiliser le triptyque et de faciliter l'administration du suivi des gestes.", "contient": []}, {"id": "ep-seo-geo", "ordre": 14, "titre": "SEO et GEO", "desc": "Des contenus propres, bien référencés et faciles à reprendre par les IA.", "contient": ["Terminer la rationalisation des fiches (plus de /dechet). À date (nov. 2026), 163 anciennes fiches (/dechet) ont été rationalisées et migrées (/categories). Sur un total de 425, il reste 262 URL à traiter et à potentiellement regrouper en familles, ou dont les contenus sont à revoir.", "Rendre le site lisible par les IA, avec d'autres formats que le HTML", "Visibiliser auprès des IA GEO la hiérarchie des gestes, la fiabilité et la paternité de l'information, mettre en avant dans la mesure du possible le plus de finesse possible dans la réponse", "Mesurer la part de voix de Que faire dans les réponses des IA"]}, {"id": "ep-opendata-consignes", "ordre": 15, "titre": "Enrichir l'open data des consignes", "desc": "Faire de la base des consignes une donnée de référence, issue du site.", "contient": ["Ajouter la hiérarchie des gestes et les synonymes", "Mieux signaler les consignes à spécificités locales", "Clés de jointure avec l'open data des solutions, pour faciliter la communication et l'interopérabilité entre les deux BDD et rendre l'UX d'usager plus poussée pour nos réutilisateurs", "Notation rapide de la donnée par les réutilisateurs"]}, {"id": "ep-visibilite", "ordre": 16, "titre": "Visibilité et communauté", "desc": "Faire connaître Que faire et ses données ouvertes.", "contient": ["En coop bizdev, organiser un hackathon open data avec data.gouv", "Mieux comprendre qui sont nos réutilisateurs et les intégrer dans la construction de nos BDD"]}, {"id": "ep-ecosysteme", "ordre": 17, "titre": "Écosystème, parcours éditoriaux et contenus saisonniers", "desc": "Inscrire Que faire dans son écosystème et enrichir les contenus éditoriaux autour des gestes.", "contient": ["Plus de synergies avec les autres start-ups et l'ADEME, pour travailler la notion d'écosystème et booster le linking", "Développer les parcours éditoriaux autour de la réduction, de la réparation et de la consommation responsable", "Une stratégie de contenus saisonniers et événementiels"]}, {"id": "ep-pilotage", "ordre": 18, "titre": "Pilotage et connaissance des usagers", "desc": "Mieux mesurer notre impact et mieux connaître les publics.", "contient": ["Harmoniser la mesure d'impact (PostHog, Metabase)", "Déterminer des profils d'usagers à partir des informations actuelles (enquêtes, études, etc.) pour affiner la segmentation de nos usagers"]}]}</script>
 <script>
 (function(){
 "use strict";
 
 const SEED = JSON.parse(document.getElementById('seed').textContent);
-const LS_KEY = 'qfdmd-atelier-2027-v2';
-const CODE_PREFIX = 'QFD27B.';
+const LS_KEY = 'qfdmd-atelier-2027-v3';
+const CODE_PREFIX = 'QFD27C.';
 const SIZE_ORDER = ['XS','S','M','L','XL','XXL'];
 const TOP_N = 5;
+const MAX_J = 400;
 const VIEWS = [
   {id:'prenom', n:1, label:'Prénom'},
   {id:'projets', n:2, label:'Les projets'},
   {id:'tri', n:3, label:'Garder ou retirer'},
-  {id:'top', n:4, label:'Mon top 5'}
+  {id:'jours', n:4, label:'Répartir les jours'},
+  {id:'top', n:5, label:'Mon top 5'}
 ];
-const ALL_VIEWS = ['prenom','projets','tri','top','synthese','reglages'];
+const ALL_VIEWS = ['prenom','projets','tri','jours','top','synthese','reglages'];
 
 const S = {
   mode:'loading', db:null, user:null, uid:null, isOwner:false, localWrite:false,
   config: SEED.config, projetsDb:[], projetsLoaded:false, choix:{},
-  me:{prenom:'', garde:[], laisse:[], top:[], estim:{}, envoye:false}, meLoaded:false,
+  me:{prenom:'', garde:[], laisse:[], top:[], alloc:{}, envoye:false}, meLoaded:false,
   local:{added:[], imports:[], config:null},
   note:'', writeError:'', view:'prenom', rendered:null,
   editing:null, includeEnCours:false, retri:false
@@ -404,6 +458,8 @@ const S = {
 const $ = (s, el) => (el||document).querySelector(s);
 const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt = n => (Math.round(n*10)/10).toString().replace('.', ',');
+const EUR = (()=>{ try{ return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}); }catch(e){ return {format:n=>Math.round(n)+' €'}; } })();
+const eur = n => EUR.format(Math.round(n||0));
 const plural = (n, a, b) => n>1 ? b : a;
 const rid = () => 'eq-' + Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-4);
 const uniq = a => [...new Set(a)];
@@ -425,7 +481,6 @@ function sizes(){
   return Object.keys(t).sort((a,b)=>{ const ia=SIZE_ORDER.indexOf(a), ib=SIZE_ORDER.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib) || (Number(t[a])-Number(t[b])); }).map(k=>[k, Number(t[k])||0]);
 }
 function tailleJ(t){ if(typeof t==='number') return isFinite(t)&&t>=0?t:0; const e=sizes().find(x=>x[0]===t); return e?e[1]:0; }
-function nearestSize(days){ let best=sizes()[0][0], d=Infinity; for(const [k,v] of sizes()){ const dd=Math.abs(v-days); if(dd<d){d=dd;best=k;} } return best; }
 const r05 = x => Math.round(x*2)/2;
 
 function cleanProjet(raw, id){
@@ -454,23 +509,25 @@ function baseDays(p){
   return res;
 }
 function sumDays(d){ return Object.values(d).reduce((a,b)=>a+b,0); }
-function baseSize(p){ return p.precis ? nearestSize(sumDays(baseDays(p))) : p.taille; }
-function days(p, estim){
-  const b=baseDays(p);
-  const o = estim && estim[p.id];
-  if(o && typeof o==='object'){ const res={}; for(const k of roleCodes()){ const v = k in o ? Number(o[k]) : b[k]; if(v>0) res[k]=v; } return res; }
-  if(!o || o===baseSize(p)) return b;
-  const tot=sumDays(b)||1; const f=tailleJ(o)/tot; const res={};
-  for(const k in b) res[k]=r05(b[k]*f);
+/* Temps incompressible : jours fixés dans la liste. Projets à arbitrer : jours répartis par la personne (zéro au départ). */
+function days(p, alloc){
+  if(p.socle) return baseDays(p);
+  const o = alloc && alloc[p.id]; const res={};
+  if(o && typeof o==='object') for(const k of roleCodes()){ const v=Number(o[k]); if(v>0) res[k]=v; }
   return res;
 }
-function total(p, estim){ return sumDays(days(p, estim)); }
-function estimSize(p, e){ return typeof e==='string' ? e : nearestSize(sumDays(days(p, {[p.id]:e}))); }
-function cleanEstim(e){
+function total(p, alloc){ return sumDays(days(p, alloc)); }
+/* Coût en euros */
+function tjm(code){ const r=role(code); if(isFinite(Number(r.tjm)) && Number(r.tjm)>=0 && r.tjm!==null && r.tjm!=='') return Number(r.tjm); const s=SEED.config.roles.find(x=>x.code===code); return s&&Number(s.tjm)||0; }
+function euros(d){ let t=0; for(const k in d) t+=d[k]*tjm(k); return t; }
+function cost(p, alloc){ return euros(days(p, alloc)); }
+function budget(){ const b=Number(cfg().budget); if(cfg().budget!=null && cfg().budget!=='' && isFinite(b) && b>0) return b; return roles().reduce((t,r)=>t+(Number(r.jours)||0)*tjm(r.code),0); }
+function cleanAlloc(e){
   const out={}; if(!e || typeof e!=='object') return out;
   for(const [k,v] of Object.entries(e)){
-    if(typeof v==='string') out[String(k)]=v.slice(0,8);
-    else if(v && typeof v==='object'){ const o={}; for(const [r,n] of Object.entries(v)){ const x=Number(n); if(isFinite(x) && x>=0 && x<=400) o[String(r).slice(0,12)]=r05(x); } out[String(k)]=o; }
+    if(!v || typeof v!=='object') continue;
+    const o={}; for(const [r,n] of Object.entries(v)){ const x=Number(n); if(isFinite(x) && x>0 && x<=MAX_J) o[String(r).slice(0,12)]=r05(x); }
+    if(Object.keys(o).length) out[String(k).slice(0,80)]=o;
   }
   return out;
 }
@@ -484,33 +541,47 @@ function allProjets(){
 function byId(){ const m={}; for(const c of allProjets()) m[c.id]=c; return m; }
 function jeux(){ return allProjets().filter(p=>!p.socle); }
 
-function load(ids, estim){
+/* Charge par rôle + budget en euros (clé spéciale « € ») */
+function load(ids, alloc){
   const map=byId(); const res={};
   for(const r of roles()) res[r.code]={cap:Number(r.jours)||0, inc:0, sel:0};
-  for(const p of Object.values(map)) if(p.socle){ const d=days(p, estim); for(const k in d) if(res[k]) res[k].inc+=d[k]; }
-  for(const id of ids){ const p=map[id]; if(!p||p.socle) continue; const d=days(p, estim); for(const k in d) if(res[k]) res[k].sel+=d[k]; }
-  for(const k in res){ const x=res[k]; x.total=x.inc+x.sel; x.over=Math.max(0,x.total-x.cap); }
+  for(const p of Object.values(map)) if(p.socle){ const d=days(p); for(const k in d) if(res[k]) res[k].inc+=d[k]; }
+  for(const id of ids){ const p=map[id]; if(!p||p.socle) continue; const d=days(p, alloc); for(const k in d) if(res[k]) res[k].sel+=d[k]; }
+  let incE=0, selE=0;
+  for(const k in res){ const x=res[k]; x.total=x.inc+x.sel; x.over=Math.max(0,x.total-x.cap); x.free=x.cap-x.total; incE+=x.inc*tjm(k); selE+=x.sel*tjm(k); }
+  const cap=budget(); const tot=incE+selE;
+  Object.defineProperty(res,'€',{value:{cap, inc:incE, sel:selE, total:tot, over:Math.max(0,tot-cap), free:cap-tot}, enumerable:false});
   return res;
 }
 function overRoles(L){ return Object.entries(L).filter(([k,x])=>x.over>0.0001).map(([k,x])=>({code:k, over:x.over})); }
-function wouldOver(L, p, estim){ const out=[]; const d=days(p, estim); for(const k in d){ const x=L[k]; if(!x) continue; const after=x.total+d[k]; if(after>x.cap+0.0001) out.push({code:k, over:Math.min(after-x.cap, d[k])}); } return out; }
+function overBudget(L){ return L['€'].over>0.5; }
+function wouldOver(L, p, alloc){ const out=[]; const d=days(p, alloc); for(const k in d){ const x=L[k]; if(!x) continue; const after=x.total+d[k]; if(after>x.cap+0.0001) out.push({code:k, over:Math.min(after-x.cap, d[k])}); } if(L['€'] && L['€'].total+euros(d)>L['€'].cap+0.5) out.push({code:'€', over:0}); return out; }
+/* Combien de jours peut-on encore ajouter sur ce rôle (plafond du rôle et du budget) ? */
+function roomFor(L, code){
+  const x=L[code]; if(!x) return 0;
+  let room=Math.max(0, x.cap-x.total);
+  const t=tjm(code); if(t>0) room=Math.min(room, Math.max(0, L['€'].free)/t);
+  return Math.floor(room*2+1e-6)/2;
+}
 
 function garde(){ const m=byId(); return S.me.garde.filter(id=>m[id]&&!m[id].socle); }
 function laisse(){ const m=byId(); return S.me.laisse.filter(id=>m[id]&&!m[id].socle); }
 function aTrier(){ const g=new Set(garde()), l=new Set(laisse()); return jeux().filter(p=>!g.has(p.id)&&!l.has(p.id)); }
 function topList(){ const g=garde(); const t=S.me.top.filter(id=>g.includes(id)); return t.concat(g.filter(id=>!t.includes(id))); }
-function myLoad(){ return load(garde(), S.me.estim); }
-function fits(){ return garde().length>0 && !overRoles(myLoad()).length; }
+function myLoad(){ return load(garde(), S.me.alloc); }
+function sansJours(){ const m=byId(); return garde().filter(id=>!total(m[id], S.me.alloc)); }
+function fits(){ if(!garde().length) return false; const L=myLoad(); return !overRoles(L).length && !overBudget(L) && !sansJours().length; }
+function freeAlloc(id){ if(S.me.alloc[id]) delete S.me.alloc[id]; }
 function mesAjouts(){ return allProjets().filter(p=>p.origine==='equipe' && (p.local || (S.uid && p.auteur===S.uid))).length; }
 
 /* ---------- Codes de secours ---------- */
 function b64e(str){ const b=new TextEncoder().encode(str); let s=''; b.forEach(x=>s+=String.fromCharCode(x)); return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
 function b64d(s){ s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='='; const bin=atob(s); const b=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) b[i]=bin.charCodeAt(i); return new TextDecoder().decode(b); }
-function packProjet(p){ return {id:p.id,titre:p.titre,desc:p.desc,precis:p.precis,efforts:p.efforts,taille:p.taille,roles:p.roles}; }
+function packProjet(p){ return {id:p.id,titre:p.titre,desc:p.desc}; }
 function myCode(){
   const g=garde(); const m=byId();
   const added=g.map(id=>m[id]).filter(p=>p && p.origine==='equipe' && (p.local || p.auteur===S.uid)).map(packProjet);
-  return CODE_PREFIX + b64e(JSON.stringify({p:S.me.prenom||'', g, t:topList().slice(0,TOP_N), e:S.me.estim, c:added}));
+  return CODE_PREFIX + b64e(JSON.stringify({p:S.me.prenom||'', g, t:topList().slice(0,TOP_N), a:S.me.alloc, c:added}));
 }
 function parseCodes(text){
   const out=[], errs=[];
@@ -519,7 +590,7 @@ function parseCodes(text){
     try{
       const o=JSON.parse(b64d(part.slice(CODE_PREFIX.length)));
       if(!o || !Array.isArray(o.g)) throw new Error('format');
-      out.push({prenom:String(o.p||'Anonyme').slice(0,40), garde:o.g.map(String).slice(0,200), top:Array.isArray(o.t)?o.t.map(String).slice(0,TOP_N):[], estim:cleanEstim(o.e),
+      out.push({prenom:String(o.p||'Anonyme').slice(0,40), garde:o.g.map(String).slice(0,200), top:Array.isArray(o.t)?o.t.map(String).slice(0,TOP_N):[], alloc:cleanAlloc(o.a),
         projets:(Array.isArray(o.c)?o.c:[]).slice(0,maxAjouts()).map(c=>cleanProjet(Object.assign({}, c, {origine:'equipe', auteurPrenom:o.p||''}))).filter(Boolean)});
     }catch(e){ errs.push(part); }
   }
@@ -534,7 +605,7 @@ function saveMe(){ lsSave(); if(S.mode!=='shared'||S.localWrite||!S.uid) return;
 async function flushMe(){
   if(saving){ saveAgain=true; return; }
   saving=true;
-  try{ await S.db.doc('choix/'+S.uid).set({prenom:S.me.prenom||'', garde:garde(), laisse:laisse(), top:topList().slice(0,TOP_N), estim:S.me.estim, envoye:!!S.me.envoye, maj:Date.now()}); S.writeError=''; }
+  try{ await S.db.doc('choix/'+S.uid).set({prenom:S.me.prenom||'', garde:garde(), laisse:laisse(), top:topList().slice(0,TOP_N), alloc:S.me.alloc, envoye:!!S.me.envoye, maj:Date.now()}); S.writeError=''; }
   catch(e){
     if(e && (e.code==='invalid_argument'||e.code==='quota_exceeded')) switchToLocalWrite();
     else S.writeError="Vos derniers choix n'ont pas pu être enregistrés dans la base partagée. Nouvel essai au prochain changement.";
@@ -547,8 +618,8 @@ function switchToLocalWrite(){ if(S.localWrite) return; S.localWrite=true; lsSav
 /* ---------- Connexion ---------- */
 function cleanMe(m){
   const arr = a => Array.isArray(a) ? a.map(String) : [];
-  const estim = cleanEstim(m && m.estim);
-  return {prenom:String((m&&m.prenom)||'').slice(0,40), garde:arr(m&&m.garde), laisse:arr(m&&m.laisse), top:arr(m&&m.top), estim, envoye:!!(m&&m.envoye), importe:!!(m&&m.importe)};
+  const alloc = cleanAlloc(m && m.alloc);
+  return {prenom:String((m&&m.prenom)||'').slice(0,40), garde:arr(m&&m.garde), laisse:arr(m&&m.laisse), top:arr(m&&m.top), alloc, envoye:!!(m&&m.envoye), importe:!!(m&&m.importe)};
 }
 async function connect(){
   const local=lsLoad();
@@ -601,7 +672,7 @@ function renderBanners(){
   if(S.note) h+=`<div class="banner warn"><p>${esc(S.note)}</p></div>`;
   if(S.writeError) h+=`<div class="banner warn"><p>${esc(S.writeError)}</p></div>`;
   
-  else if(S.mode==='shared'&&S.localWrite) h+=`<div class="banner warn"><p><strong>Lecture seule :</strong> demandez à Lucas un accès « Éditeur ». En attendant, envoyez-lui votre code à l'étape 4.</p></div>`;
+  else if(S.mode==='shared'&&S.localWrite) h+=`<div class="banner warn"><p><strong>Lecture seule :</strong> demandez à Lucas un accès « Éditeur ». En attendant, envoyez-lui votre code à l'étape 5.</p></div>`;
   $('#banners').innerHTML=h;
 }
 function renderWho(){ const w=$('#who'); if(w) w.textContent = S.me.prenom ? S.me.prenom : ''; }
@@ -611,20 +682,23 @@ function renderSteps(){
   let h=VIEWS.map((v,i)=>{ const st = i===cur ? 'cur' : (cur>=0 && i<cur ? 'done' : '');
     return `<span class="step ${st}" ${i===cur?'aria-current="step"':''}><span class="n">${st==='done'?'✓':v.n}</span>${esc(v.label)}</span>`; }).join('<span class="step-sep" aria-hidden="true"></span>');
   if(S.isOwner) h+=`<span class="spacer"></span><a href="#synthese" class="owner-link ${S.view==='synthese'?'on':''}">Synthèse</a>${S.mode==='shared'?`<a href="#reglages" class="owner-link ${S.view==='reglages'?'on':''}">Réglages</a>`:''}`;
-  $('#steps').innerHTML=h;
+  $('#steps').innerHTML=h; setNavH();
 }
+function setNavH(){ const n=document.querySelector('nav.quest'); if(n) document.documentElement.style.setProperty('--nav-h', n.offsetHeight+'px'); }
+window.addEventListener('resize', setNavH);
 function clampView(v){
   if(!ALL_VIEWS.includes(v)) v='prenom';
   if(v==='reglages' && S.mode==='local') v='synthese';
   if(v==='synthese'||v==='reglages') return S.isOwner ? v : clampView('top');
   if(!S.me.prenom.trim()) return 'prenom';
-  if(v==='top' && !fits()) return 'tri';
+  if(v==='jours' && !garde().length) return 'tri';
+  if(v==='top' && !fits()) return garde().length ? 'jours' : 'tri';
   return v;
 }
 function go(v){ if(v==='tri' && S.view==='top') S.forceBilan=true; if(location.hash==='#'+v) route(); else location.hash='#'+v; }
 function route(){
   S.view=(location.hash||'').slice(1)||'prenom';
-  S.editing=null; S.adjust=null; render(true); if(window.scrollTo) try{ window.scrollTo(0,0); }catch(e){}
+  S.editing=null; render(true); if(window.scrollTo) try{ window.scrollTo(0,0); }catch(e){}
 }
 function stepNav(prev, next){
   return `<div class="stepnav"><span>${prev?`<button class="btn sec" data-act="go" data-to="${prev.to}">Précédent : ${esc(prev.label)}</button>`:''}</span><span>${next?`<button class="btn" data-act="${next.act||'go'}" data-to="${next.to||''}" ${next.disabled?'disabled':''}>${esc(next.label)}</button>`:''}</span></div>`;
@@ -649,6 +723,7 @@ function shell(view){
     <div id="add-zone"></div></div><div id="form-panel"></div><div id="list"></div>
     ${stepNav({to:'prenom',label:'Prénom'},{to:'tri',label:'Suivant : Garder ou retirer'})}`;
   if(view==='tri') return `<div id="tri-body"></div>`;
+  if(view==='jours') return `<div id="jours-body"></div>`;
   if(view==='top') return `<div class="intro"><div><h1>Mon top ${TOP_N}</h1>
     </div></div><div id="top-body"></div><div id="top-nav"></div>`;
   if(view==='synthese') return `<div class="intro"><div><h1>Synthèse de l'équipe</h1>
@@ -660,11 +735,12 @@ function afterShell(view){ if(view==='synthese') renderImport(); if(view==='regl
 function fill(view){
   if(view==='projets') fillProjets();
   if(view==='tri') fillTri();
+  if(view==='jours') fillJours();
   if(view==='top') fillTop();
   if(view==='synthese') fillSynthese();
 }
-function chipsHtml(p, estim){
-  const d=days(p, estim); const order=roleCodes();
+function chipsHtml(p, alloc){
+  const d=days(p, alloc); const order=roleCodes();
   return Object.keys(d).sort((a,b)=>order.indexOf(a)-order.indexOf(b)).map(k=>`<span class="chip">${esc(court(k))} <b>${fmt(d[k])} j</b></span>`).join('');
 }
 function tagHtml(p){ return p.origine==='equipe' ? `<span class="tag">Proposé${p.auteurPrenom?' par '+esc(p.auteurPrenom):' en atelier'}</span>` : ''; }
@@ -692,35 +768,16 @@ function fillProjets(){
       <h3 style="font-size:18px">${esc(p.titre)}</h3>
       ${p.desc?`<p class="desc">${esc(p.desc)}</p>`:''}
       ${contientHtml(p)}
-      ${S.adjust===p.id ? adjustHtml(p) : `<div class="chips">${chipsHtml(p, S.me.estim)}</div>`}
-      <div class="card-foot"><span class="days">${fmt(total(p, S.me.estim))} j au total${S.me.estim[p.id]?` <span class="small muted" style="font-weight:400">(prévu : ${fmt(total(p))} j)</span>`:''}</span><span>${!canDelete(p) && S.adjust!==p.id ?`<button class="btn ghost" data-act="adj" data-id="${esc(p.id)}" aria-label="Ajuster les jours de « ${esc(p.titre)} »">Ajuster les jours</button>`:''}${canEdit(p)?`<button class="btn ghost" data-act="edit" data-id="${esc(p.id)}">Modifier</button>`:''}${canDelete(p)?(S.confirmDel===p.id?`<button class="btn sm" style="background:var(--corail-texte);box-shadow:0 4px 0 #7d1f1b" data-act="del-ok" data-id="${esc(p.id)}">Confirmer la suppression</button> <button class="btn ghost" data-act="del-no">Annuler</button>`:`<button class="btn ghost" style="color:var(--corail-texte)" data-act="del" data-id="${esc(p.id)}">Supprimer</button>`):''}</span></div>
+      ${canEdit(p)||canDelete(p)?`<div class="card-foot"><span></span><span>${canEdit(p)?`<button class="btn ghost" data-act="edit" data-id="${esc(p.id)}">Modifier</button>`:''}${canDelete(p)?(S.confirmDel===p.id?`<button class="btn sm" style="background:var(--corail-texte);box-shadow:0 4px 0 #7d1f1b" data-act="del-ok" data-id="${esc(p.id)}">Confirmer la suppression</button> <button class="btn ghost" data-act="del-no">Annuler</button>`:`<button class="btn ghost" style="color:var(--corail-texte)" data-act="del" data-id="${esc(p.id)}">Supprimer</button>`):''}</span></div>`:''}
     </article>`;
   el.innerHTML = `<section class="group"><div class="group-h"><h2>Projets à arbitrer</h2></div><div class="cards">${js.map(card).join('')}</div></section>
-    <section class="group"><div class="group-h"><h2>Temps incompressible</h2></div><div class="cards">${inc.map(card).join('')}</div></section>`;
-}
-function adjustHtml(p){
-  const d=days(p, S.me.estim), b=baseDays(p);
-  return `<div class="adjust" role="group" aria-label="Jours par poste pour « ${esc(p.titre)} »">
-    <div class="adjust-grid">${roles().map(r=>`<label class="field"><span class="lbl">${esc(court(r.code))}</span><span class="adj-in"><input type="number" inputmode="decimal" min="0" max="400" step="0.5" data-adj="${esc(r.code)}" value="${d[r.code]||0}"> j</span><span class="small muted">prévu : ${fmt(b[r.code]||0)} j</span></label>`).join('')}</div>
-    <p class="err" id="adj-err" role="alert"></p>
-    <div class="form-actions" style="margin-top:12px"><button class="btn sm" data-act="adj-ok" data-id="${esc(p.id)}">Valider</button><button class="btn sec sm" data-act="adj-no">Annuler</button>${S.me.estim[p.id]?`<button class="btn ghost" data-act="adj-reset" data-id="${esc(p.id)}">Revenir au prévu</button>`:''}</div></div>`;
-}
-function saveAdjust(id){
-  const p=byId()[id]; if(!p) return;
-  const o={}; let bad=false;
-  document.querySelectorAll('.adjust input[data-adj]').forEach(i=>{ const v=Number(String(i.value).replace(',','.')); if(i.value==='' ) o[i.dataset.adj]=0; else if(!isFinite(v)||v<0||v>400) bad=true; else o[i.dataset.adj]=r05(v); });
-  if(bad){ $('#adj-err').textContent='Indiquez un nombre de jours entre 0 et 400.'; return; }
-  if(!Object.values(o).some(v=>v>0)){ $('#adj-err').textContent='Indiquez au moins un poste avec des jours.'; return; }
-  const b=baseDays(p); const same=roleCodes().every(k=>(o[k]||0)===(b[k]||0));
-  if(same) delete S.me.estim[id]; else S.me.estim[id]=o;
-  S.adjust=null; changed(); fillProjets(); renderSteps(); announce('Jours ajustés.');
+    <section class="group"><div class="group-h"><h2>Temps incompressible</h2></div><p class="muted" style="margin:-12px 0 20px">Toujours fait, quoi qu'on choisisse : ce temps sera déjà compté quand vous répartirez les jours.</p><div class="cards">${inc.map(card).join('')}</div></section>`;
 }
 function openForm(id){
   S.editing=id;
-  const p = id==='new' ? {titre:'',desc:'',contient:[],taille:'M',roles:['DEV'],precis:false,efforts:{},socle:false} : byId()[id];
+  const p = id==='new' ? {titre:'',desc:'',contient:[],efforts:{},socle:false} : byId()[id];
   if(!p){ S.editing=null; return; }
-  const sizeOpts = sel => (typeof sel==='number'?`<option value="n:${sel}" selected>${fmt(sel)} j (sur mesure)</option>`:'') + sizes().map(([k,v])=>`<option value="${esc(k)}" ${sel===k?'selected':''}>${esc(k)} : ${v} j</option>`).join('');
-  const bd = baseDays(p);
+  const bd = p.socle ? baseDays(p) : {};
   $('#add-zone').innerHTML='';
   $('#form-panel').innerHTML=`
     <form class="panel" id="p-form" novalidate>
@@ -728,43 +785,30 @@ function openForm(id){
       <div class="form-grid" style="margin-top:14px">
         <div class="field full"><label for="p-titre">Titre du projet</label><input id="p-titre" maxlength="160" value="${esc(p.titre)}" required></div>
         <div class="field full"><label for="p-desc">En une phrase, de quoi s'agit-il ? (facultatif)</label><textarea id="p-desc" maxlength="600">${esc(p.desc)}</textarea></div>
-        <div class="field"><span class="lbl" id="lbl-roles">Qui travaille dessus ?</span><div class="rolebox" role="group" aria-labelledby="lbl-roles">${roles().map(r=>`<label><input type="checkbox" data-role="${esc(r.code)}" ${(p.precis?bd[r.code]:p.roles.includes(r.code))?'checked':''}> ${esc(r.label)}</label>`).join('')}</div></div>
-        <div class="field"><label for="p-taille">Taille du projet (tous rôles confondus)</label><select id="p-taille">${sizeOpts(p.precis?nearestSize(sumDays(bd)):p.taille)}</select><div class="preview" id="p-preview"></div></div>
-        <div class="full"><details class="precis" id="p-precis" ${p.precis?'open':''}><summary>Réglage précis par rôle</summary>
-          <div class="efforts-grid">${roles().map(r=>`<div class="field"><label for="ef-${esc(r.code)}">${esc(r.label)}</label><select id="ef-${esc(r.code)}" data-ef="${esc(r.code)}"><option value="">Pas concerné</option>${sizeOpts(p.precis?p.efforts[r.code]:(bd[r.code]?nearestSize(bd[r.code]):''))}</select></div>`).join('')}</div>
-        </details></div>
-        ${S.isOwner?`<label class="check full"><input type="checkbox" id="p-socle" ${p.socle?'checked':''}> Temps incompressible (toujours compté)</label>`:''}
+        ${S.isOwner?`<label class="check full"><input type="checkbox" id="p-socle" ${p.socle?'checked':''}> Temps incompressible (toujours compté)</label>
+        <div class="full" id="p-socle-j" ${p.socle?'':'hidden'}><span class="lbl small" style="font-weight:600">Jours fixes par métier</span><div class="efforts-grid">${roles().map(r=>`<div class="field"><label for="ef-${esc(r.code)}">${esc(r.label)}</label><input id="ef-${esc(r.code)}" data-ef="${esc(r.code)}" inputmode="decimal" value="${bd[r.code]?fmt(bd[r.code]):''}" placeholder="0"></div>`).join('')}</div></div>`:''}
       </div>
       <p class="err" id="p-err" role="alert"></p>
       <div class="form-actions"><button class="btn" type="submit">${id==='new'?'Ajouter le projet':'Enregistrer'}</button><button class="btn sec" type="button" data-act="cancel">Annuler</button></div>
     </form>`;
-  updatePreview(); $('#p-titre').focus();
-}
-function formProjet(){
-  const rl=[...document.querySelectorAll('#p-form input[data-role]:checked')].map(i=>i.dataset.role);
-  const precis=$('#p-precis').open;
-  const efforts={}; document.querySelectorAll('#p-form select[data-ef]').forEach(s=>{ if(s.value) efforts[s.dataset.ef]= s.value.startsWith('n:') ? Number(s.value.slice(2)) : s.value; });
-  return {roles:rl, taille:$('#p-taille').value, precis, efforts};
-}
-function updatePreview(){
-  const pv=$('#p-preview'); if(!pv) return;
-  const f=formProjet();
-  if(f.precis){ pv.textContent='Réglage précis activé : voir les tailles par rôle.'; return; }
-  if(!f.roles.length){ pv.textContent='Cochez au moins un rôle.'; return; }
-  const d=baseDays(cleanProjet(Object.assign({titre:'x'}, f, {precis:false})));
-  pv.textContent='Réparti ainsi : '+Object.entries(d).map(([k,v])=>court(k)+' '+fmt(v)+' j').join(', ');
+  $('#p-titre').focus();
 }
 async function submitForm(){
   const titre=$('#p-titre').value.trim(); const err=$('#p-err');
   if(!titre){ err.textContent='Donnez un titre au projet.'; $('#p-titre').focus(); return; }
-  const f=formProjet();
-  if(f.precis && !Object.keys(f.efforts).length){ err.textContent='Indiquez au moins une taille dans le réglage précis, ou refermez-le.'; return; }
-  if(!f.precis && !f.roles.length){ err.textContent='Cochez au moins un rôle.'; return; }
   const isNew=S.editing==='new'; const prev=isNew?null:byId()[S.editing];
   if(isNew && mesAjouts()>=maxAjouts() && !S.isOwner){ err.textContent=`Vous avez déjà proposé ${maxAjouts()} projets.`; return; }
-  const id=isNew?rid():S.editing; const box=$('#p-socle');
-  const doc={titre, desc:$('#p-desc').value.trim(), contient: prev?prev.contient:[], taille:f.taille, roles: f.roles.length?f.roles:Object.keys(f.efforts), precis:f.precis, efforts:f.precis?f.efforts:{},
-    socle: box?box.checked:!!(prev&&prev.socle), origine: prev?prev.origine:'equipe', auteur: prev?prev.auteur:(S.uid||''), auteurPrenom: prev?prev.auteurPrenom:(S.me.prenom||''),
+  const box=$('#p-socle'); const socle = box?box.checked:!!(prev&&prev.socle);
+  const efforts={};
+  if(socle){
+    let bad=false;
+    document.querySelectorAll('#p-form input[data-ef]').forEach(i=>{ const raw=String(i.value).trim().replace(',','.'); if(!raw) return; const v=Number(raw); if(!isFinite(v)||v<0||v>MAX_J) bad=true; else if(v>0) efforts[i.dataset.ef]=r05(v); });
+    if(bad){ err.textContent=`Indiquez un nombre de jours entre 0 et ${MAX_J}.`; return; }
+    if(!Object.keys(efforts).length){ err.textContent='Indiquez les jours fixes d’au moins un métier.'; return; }
+  }
+  const id=isNew?rid():S.editing;
+  const doc={titre, desc:$('#p-desc').value.trim(), contient: prev?prev.contient:[], taille:'M', roles: socle?Object.keys(efforts):['DEV'], precis:socle, efforts,
+    socle, origine: prev?prev.origine:'equipe', auteur: prev?prev.auteur:(S.uid||''), auteurPrenom: prev?prev.auteurPrenom:(S.me.prenom||''),
     ordre: prev?prev.ordre:500, cree: prev?(prev.cree||Date.now()):Date.now()};
   if(S.localWrite || (prev && prev.local)){
     const i=S.local.added.findIndex(c=>c.id===id); const row=Object.assign({id}, doc, {local:true});
@@ -780,26 +824,31 @@ async function submitForm(){
 }
 
 /* ----- Jauges ----- */
+function gaugeCell(o){
+  const {key,label,x,unit,shake}=o; const f = unit==='€' ? eur : (n=>fmt(n)+' j');
+  const den=Math.max(x.cap,x.total,1);
+  const pInc=Math.min(x.inc,x.cap)/den*100; const selIn=Math.max(0,Math.min(x.sel,x.cap-x.inc)); const pSel=selIn/den*100; const pOver=x.over/den*100;
+  const full = x.over<=0.0001 && (unit==='€' ? x.free<1 : x.free<0.5);
+  const state = x.over>0.0001 ? 'over' : full ? 'full' : '';
+  const status = x.over>0.0001 ? '⚠ '+f(x.over)+' de trop' : full ? 'Plus rien de libre' : f(x.free)+(unit==='€'?' restants':' libres');
+  const lab=`${label} : ${f(x.total)} sur ${f(x.cap)}, ${status}`;
+  return `<div class="ag ${state} ${shake?'shake':''}" data-g="${esc(key)}" role="img" aria-label="${esc(lab)}">
+    <div class="ag-top" aria-hidden="true"><span class="g-label">${esc(label)}</span><b class="ag-val">${f(x.total)} <span class="muted">/ ${f(x.cap)}</span></b></div>
+    <span class="g-track" aria-hidden="true"><span class="g-inc" style="width:${pInc}%"></span>${pSel>0?`<span class="g-sel" style="width:${pSel}%"></span>`:''}${pOver>0?`<span class="g-over" style="width:${pOver}%"></span>`:''}${x.over>0?`<span class="g-cap" style="left:calc(${x.cap/den*100}% - 1px)"></span>`:''}</span>
+    <span class="ag-st" aria-hidden="true">${status}</span></div>`;
+}
 function gaugesHtml(L, opts){
-  opts=opts||{};
-  return `<div class="gauges">${roles().map(r=>{
-    const x=L[r.code]; const den=Math.max(x.cap,x.total,1);
-    const pInc=Math.min(x.inc,x.cap)/den*100; const selIn=Math.max(0,Math.min(x.sel,x.cap-x.inc)); const pSel=selIn/den*100; const pOver=x.over/den*100;
-    const lab=`${r.label} : ${fmt(x.total)} jours sur ${fmt(x.cap)}${x.over>0?', '+fmt(x.over)+' jours de trop':''}`;
-    return `<div class="gauge ${opts.shake&&opts.shake.includes(r.code)?'shake':''}" role="img" aria-label="${esc(lab)}">
-      <span class="g-label">${esc(court(r.code))}</span>
-      <span class="g-track" aria-hidden="true"><span class="g-inc" style="width:${pInc}%"></span>${pSel>0?`<span class="g-sel" style="width:${pSel}%"></span>`:''}${pOver>0?`<span class="g-over" style="width:${pOver}%"></span>`:''}${x.over>0?`<span class="g-cap" style="left:calc(${x.cap/den*100}% - 1px)"></span>`:''}</span>
-      <span class="g-num ${x.over>0?'over':''}" aria-hidden="true"><span>${x.over>0?'⚠ '+fmt(x.over)+' j de trop':fmt(x.cap-x.total)+' j libres'}</span><b>${fmt(x.total)} / ${fmt(x.cap)}</b></span></div>`; }).join('')}</div>
-    <div class="legend"><span><i class="lg-inc"></i>Incompressible</span><span><i class="lg-sel"></i>Projets gardés</span><span><i class="lg-over"></i>Dépassement</span></div>`;
+  opts=opts||{}; const sh=opts.shake||[];
+  return `<div class="agrid">${roles().map(r=>gaugeCell({key:r.code,label:court(r.code),x:L[r.code],unit:'j',shake:sh.includes(r.code)})).join('')}${gaugeCell({key:'€',label:'Budget produit',x:L['€'],unit:'€',shake:sh.includes('€')})}</div>
+    <div class="legend"><span><i class="lg-inc"></i>Temps incompressible</span><span><i class="lg-sel"></i>${opts.team?'Panier d’équipe':'Mes projets'}</span><span><i class="lg-over"></i>Dépassement</span></div>`;
 }
 
-/* ----- Étape 2 : tri ----- */
-let lastOver=[];
+/* ----- Étape 3 : tri (sans notion de coût) ----- */
 function fillTri(){
   const rest=aTrier(); const el=$('#tri-body');
   if(!jeux().length){ el.innerHTML=`<div class="empty">${BIN(40)}<span>Aucun projet à trier pour l'instant.</span></div>`; return; }
   if(rest.length && !S.forceBilan) return renderSwipe(rest);
-  renderBilan();
+  renderRecap();
 }
 function renderSwipe(rest){
   const all=jeux(); const p=rest[0]; const g=new Set(garde()), l=new Set(laisse());
@@ -814,22 +863,21 @@ function renderSwipe(rest){
           <h2>${esc(p.titre)}</h2>
           ${p.desc?`<p class="desc">${esc(p.desc)}</p>`:''}
           ${contientHtml(p)}
-          <div class="cost"><div class="chips">${chipsHtml(p, S.me.estim)}</div><div style="text-align:right"><div class="small muted">Coût total</div><div class="big">${fmt(total(p,S.me.estim))} j</div></div></div>
         </article>
       </div>
       <div class="choice-bar"><div class="choices"><button class="round leave" data-act="leave" data-id="${esc(p.id)}" aria-label="Retirer « ${esc(p.titre)} »">✕</button><button class="round keep" data-act="keep" data-id="${esc(p.id)}" aria-label="Garder « ${esc(p.titre)} »">✓</button></div>
       <div class="choice-lbl" aria-hidden="true"><span>Je retire</span><span>Je garde</span></div></div>
     </div>
 </div>
-    ${stepNav({to:'projets',label:'Les projets'}, (garde().length||laisse().length)?{act:'to-bilan',label:'Voir le bilan'}:null)}`;
+    ${stepNav({to:'projets',label:'Les projets'}, (garde().length||laisse().length)?{act:'to-bilan',label:'Voir mes choix'}:null)}`;
   bindSwipe();
 }
 function decide(id, keep){
   const p=byId()[id]; if(!p) return;
   S.me.garde=garde().filter(x=>x!==id); S.me.laisse=laisse().filter(x=>x!==id);
-  (keep?S.me.garde:S.me.laisse).push(id); changed();
+  (keep?S.me.garde:S.me.laisse).push(id); if(!keep) freeAlloc(id); changed();
   announce((keep?'Gardé : ':'Retiré : ')+p.titre);
-  if(!aTrier().length) S.retri=false;
+  if(!aTrier().length){ S.retri=false; if(garde().length){ go('jours'); renderSteps(); return; } }
   fillTri(); renderSteps();
   const k=document.querySelector('.round.keep'); if(k) k.focus();
 }
@@ -856,47 +904,111 @@ document.addEventListener('keydown', e=>{
   if(e.key==='ArrowRight'){ e.preventDefault(); fly(true); }
   if(e.key==='ArrowLeft'){ e.preventDefault(); fly(false); }
 });
-function renderBilan(){
-  const g=garde(), l=laisse(), m=byId(); const L=myLoad(); const over=overRoles(L); const estim=S.me.estim;
-  let verdict;
-  if(!g.length) verdict=`<div class="verdict ko"><div class="ico">?</div><div><h2>Aucun projet gardé</h2></div></div>`;
-  else if(over.length) verdict=`<div class="verdict ko"><div class="ico">⚠</div><div><h2>Ça ne rentre pas : ${fmt(over.reduce((t,o)=>t+o.over,0))} jours de trop</h2></div></div>`;
-  else verdict=`<div class="verdict ok"><div class="ico">✓</div><div><h2>Ça rentre !</h2></div></div>`;
-  const reeval=p=>{ const b=baseSize(p), cur=estim[p.id]?estimSize(p, estim[p.id]):b; return `<label class="reeval ${cur!==b?'changed':''}">Taille <select data-estim="${esc(p.id)}" aria-label="Réévaluer la taille de « ${esc(p.titre)} »">${sizes().map(([k,v])=>`<option value="${esc(k)}" ${cur===k?'selected':''}>${esc(k)}${k===b?' (prévu)':''}</option>`).join('')}</select></label>`; };
-  S.openCost = S.openCost || {};
-  const costly = g.length ? roles().map(r=>{
-    const items=g.map(id=>m[id]).filter(p=>days(p,estim)[r.code]).sort((a,b)=>days(b,estim)[r.code]-days(a,estim)[r.code]);
-    if(!items.length) return '';
-    const x=L[r.code]; const max=Math.max(...items.map(p=>days(p,estim)[r.code]),1);
-    const st = x.over>0 ? `<span class="sig over-txt">⚠ ${fmt(x.over)} j de trop</span>` : `<span class="sig fort">✓ ${fmt(x.cap-x.total)} j libres</span>`;
-    return `<details class="costbox" data-role="${esc(r.code)}" ${S.openCost[r.code]?'open':''}><summary><span class="ct">Ce qui coûte le plus en ${esc(court(r.code))}</span>${st}</summary><ul class="rows">${items.map(p=>{ const d=days(p,estim)[r.code]; return `<li class="${x.over>0?'costly':''}"><div class="t"><strong>${esc(p.titre)}</strong><div class="small muted">${fmt(d)} j de ${esc(court(r.code))}, ${fmt(total(p,estim))} j au total</div><div class="cost-bar" style="width:${d/max*100}%;${x.over>0?'':'background:var(--menthe-3)'}"></div></div></li>`; }).join('')}</ul></details>`;
-  }).join('') : '';
+/* Récapitulatif du tri : uniquement les choix, sans jours */
+function renderRecap(){
+  const g=garde(), l=laisse(), m=byId(); const rest=aTrier();
   $('#tri-body').innerHTML=`
-    <div class="intro" style="margin-top:0"><div><h1>Mon bilan</h1></div><button class="btn sec sm" data-act="retri">Refaire le tri</button></div>
-    ${aTrier().length?`<div class="banner"><p>${aTrier().length} ${plural(aTrier().length,'projet n\'a','projets n\'ont')} pas encore été trié${aTrier().length>1?'s':''}. <button class="btn sm" data-act="continue">Les trier</button></p></div>`:''}
-    ${verdict}
-    <div class="bilan"><div>
-      ${costly?`<div style="margin-bottom:22px;display:flex;flex-direction:column;gap:10px">${costly}</div>`:''}
+    <div class="intro" style="margin-top:0"><div><h1>Mes choix</h1></div><button class="btn sec sm" data-act="retri">Refaire le tri</button></div>
+    ${rest.length?`<div class="banner"><p>${rest.length} ${plural(rest.length,'projet n\'a','projets n\'ont')} pas encore été trié${rest.length>1?'s':''}. <button class="btn sm" data-act="continue">Les trier</button></p></div>`:''}
+    <div style="max-width:760px">
       <h2 style="margin:0 0 10px">Projets gardés (${g.length})</h2>
-      <ul class="rows" style="margin-bottom:22px">${g.map(id=>{ const p=m[id]; return `<li><div class="t"><strong>${esc(p.titre)}</strong><div class="chips" style="margin-top:4px">${chipsHtml(p,estim)}</div></div>${reeval(p)}<button class="btn sec sm" data-act="leave-b" data-id="${esc(id)}" aria-label="Retirer « ${esc(p.titre)} »">Retirer</button></li>`; }).join('')||'<li class="left"><span class="muted">Aucun.</span></li>'}</ul>
-      <h2 style="margin:0 0 10px">Projets non retenus (${l.length})</h2>
-      <ul class="rows">${l.map(id=>{ const p=m[id]; const wo=wouldOver(L,p,estim); return `<li class="left"><div class="t"><strong>${esc(p.titre)}</strong><div class="small muted">${fmt(total(p,estim))} j${wo.length?', ferait déborder '+wo.map(w=>esc(court(w.code))).join(', '):''}</div></div><button class="btn sec sm" data-act="keep-b" data-id="${esc(id)}" aria-label="Remettre « ${esc(p.titre)} »">Remettre</button></li>`; }).join('')||'<li class="left"><span class="muted">Aucun.</span></li>'}</ul>
+      <ul class="rows" style="margin-bottom:22px">${g.map(id=>{ const p=m[id]; return `<li><div class="t"><strong>${esc(p.titre)}</strong></div><button class="btn sec sm" data-act="leave-r" data-id="${esc(id)}" aria-label="Retirer « ${esc(p.titre)} »">Retirer</button></li>`; }).join('')||'<li class="left"><span class="muted">Aucun : gardez au moins un projet pour passer à la suite.</span></li>'}</ul>
+      <h2 style="margin:0 0 10px">Projets retirés (${l.length})</h2>
+      <ul class="rows">${l.map(id=>{ const p=m[id]; return `<li class="left"><div class="t"><strong>${esc(p.titre)}</strong></div><button class="btn sec sm" data-act="keep-r" data-id="${esc(id)}" aria-label="Remettre « ${esc(p.titre)} »">Remettre</button></li>`; }).join('')||'<li class="left"><span class="muted">Aucun.</span></li>'}</ul>
     </div>
-    <aside class="dark sticky"><h2>Temps de l'équipe</h2><div style="margin-top:12px">${gaugesHtml(L)}</div>
-    </aside></div>
-    ${stepNav({to:'projets',label:'Les projets'},{to:'top',label:'Suivant : Mon top 5',disabled:!fits()})}`;
+    ${stepNav({to:'projets',label:'Les projets'},{to:'jours',label:'Suivant : Répartir les jours',disabled:!g.length})}`;
 }
 
-/* ----- Étape 3 : top 5 ----- */
+/* ----- Étape 4 : répartir les jours ----- */
+const PAS = 0.5;
+let joursSig='';
+function fillJours(){
+  const el=$('#jours-body'); if(!el) return;
+  const g=garde(); const sig=g.join('|')+'#'+laisse().join('|')+'#'+roles().map(r=>r.code+r.jours+':'+tjm(r.code)).join(',')+'#'+budget();
+  if(el.firstChild && sig===joursSig){ refreshJours(); return; }
+  joursSig=sig;
+  const m=byId(); const l=laisse(); const inc=allProjets().filter(p=>p.socle);
+  const rates=roles().map(r=>`${esc(court(r.code))} ${eur(tjm(r.code))}`).join(' · ');
+  const stepper=(p,r)=>{ const lab=court(r.code); return `<div class="stp" data-role="${esc(r.code)}">
+      <label class="stp-l" for="al-${esc(p.id)}-${esc(r.code)}">${esc(lab)}</label>
+      <div class="stp-c"><button type="button" class="stp-b" data-act="minus" data-id="${esc(p.id)}" data-role="${esc(r.code)}" aria-label="Enlever une demi-journée de ${esc(lab)} sur « ${esc(p.titre)} »">−</button><input class="stp-in" id="al-${esc(p.id)}-${esc(r.code)}" inputmode="decimal" autocomplete="off" data-alloc="${esc(p.id)}" data-role="${esc(r.code)}" value="0" aria-describedby="msg-${esc(p.id)}"><span class="stp-u" aria-hidden="true">j</span><button type="button" class="stp-b" data-act="plus" data-id="${esc(p.id)}" data-role="${esc(r.code)}" aria-label="Ajouter une demi-journée de ${esc(lab)} sur « ${esc(p.titre)} »">+</button></div>
+      <span class="stp-e small muted" data-eur></span></div>`; };
+  el.innerHTML=`
+    <div class="intro" style="margin-bottom:18px"><div><h1>Répartir les jours</h1>
+      <p class="muted" style="margin:8px 0 0;max-width:70ch">Chaque projet gardé part de zéro. Indiquez combien de jours chaque métier y consacre, par demi-journée. Le temps incompressible est déjà compté. Si ça ne rentre pas, retirez des projets.</p></div></div>
+    <div class="alloc-head" id="alloc-head"><div id="j-gauges"></div><div id="j-alert" role="status"></div></div>
+    <p class="small muted" style="margin:16px 0 0">Coût d'une journée : ${rates}.</p>
+    <section class="group" style="margin-top:24px"><div class="group-h"><h2>Mes projets gardés (${g.length})</h2></div>
+      ${g.length?`<div class="acards">${g.map(id=>{ const p=m[id]; return `<article class="acard" data-card="${esc(p.id)}">
+        <div class="acard-h"><div><h3>${esc(p.titre)}</h3>${p.desc?`<p class="small muted" style="margin:4px 0 0">${esc(p.desc)}</p>`:''}</div><button class="btn ghost" data-act="leave-j" data-id="${esc(p.id)}" aria-label="Retirer « ${esc(p.titre)} »">Retirer</button></div>
+        ${p.contient.length?`<details class="acard-more"><summary class="small">Ce que contient le projet</summary>${contientHtml(p)}</details>`:''}
+        <div class="stps">${roles().map(r=>stepper(p,r)).join('')}</div>
+        <div class="acard-f"><span class="acard-tot" data-tot></span><span class="acard-msg" id="msg-${esc(p.id)}" data-msg aria-live="polite"></span></div>
+      </article>`; }).join('')}</div>`:`<div class="empty">${BIN(40)}<span>Aucun projet gardé. <a href="#tri">Garder ou retirer</a>.</span></div>`}
+    </section>
+    ${l.length?`<section class="group"><div class="group-h"><h2>Projets retirés (${l.length})</h2></div>
+      <ul class="rows" style="max-width:760px">${l.map(id=>{ const p=m[id]; return `<li class="left"><div class="t"><strong>${esc(p.titre)}</strong></div><button class="btn sec sm" data-act="keep-j" data-id="${esc(id)}" aria-label="Remettre « ${esc(p.titre)} »">Remettre</button></li>`; }).join('')}</ul></section>`:''}
+    <section class="group"><div class="group-h"><h2>Temps incompressible (déjà compté)</h2></div>
+      <ul class="rows inc-rows" style="max-width:760px">${inc.map(p=>`<li><div class="t"><strong>${esc(p.titre)}</strong><div class="chips" style="margin-top:4px">${chipsHtml(p)}</div></div><span class="days">${fmt(total(p))} j · ${eur(cost(p))}</span></li>`).join('')}</ul></section>
+    <div id="jours-nav"></div>`;
+  refreshJours();
+}
+function refreshJours(shake){
+  const el=$('#jours-body'); if(!el) return;
+  const L=myLoad(); const m=byId(); const a=S.me.alloc;
+  $('#j-gauges').innerHTML=gaugesHtml(L,{shake:shake||[]});
+  const over=overRoles(L), ob=overBudget(L);
+  const full=roles().filter(r=>L[r.code].over<=0.0001 && roomFor(L,r.code)<PAS).map(r=>court(r.code));
+  let al='';
+  if(over.length||ob) al=`<div class="banner warn"><p><strong>Ça ne rentre pas :</strong> ${over.map(o=>fmt(o.over)+' j de trop en '+esc(court(o.code))).concat(ob?[eur(L['€'].over)+' au-delà du budget']:[]).join(', ')}. Baissez des jours ou retirez un projet.</p></div>`;
+  else if(full.length) al=`<div class="banner warn"><p><strong>Plus de jours disponibles en ${full.map(esc).join(', ')}.</strong> Pour en ajouter ailleurs, baissez un autre projet ou retirez-en un.</p></div>`;
+  $('#j-alert').innerHTML=al;
+  document.querySelectorAll('#jours-body .acard').forEach(card=>{
+    const id=card.dataset.card; const p=m[id]; if(!p) return; const d=days(p,a); const tot=sumDays(d);
+    card.classList.toggle('zero', !tot);
+    card.querySelectorAll('.stp').forEach(s=>{
+      const code=s.dataset.role; const v=d[code]||0; const inp=s.querySelector('input');
+      if(document.activeElement!==inp || inp.dataset.dirty!=='1') inp.value=fmt(v);
+      s.querySelector('[data-act="minus"]').disabled = v<=0;
+      s.querySelector('[data-act="plus"]').disabled = roomFor(L,code)<PAS;
+      s.querySelector('[data-eur]').textContent = v ? eur(v*tjm(code)) : '';
+    });
+    card.querySelector('[data-tot]').innerHTML = tot ? `<b>${fmt(tot)} j</b> · <b>${eur(euros(d))}</b>` : `<span class="zero-txt">Aucun jour : à répartir ou à retirer</span>`;
+  });
+  const zero=sansJours();
+  const nav=$('#jours-nav');
+  if(nav) nav.innerHTML=(zero.length&&garde().length?`<p class="small" style="margin:24px 0 -36px;text-align:right">${zero.length} ${plural(zero.length,'projet gardé n\'a','projets gardés n\'ont')} encore aucun jour.</p>`:'')+stepNav({to:'tri',label:'Garder ou retirer'},{to:'top',label:'C’est bon : mon top 5',disabled:!fits()});
+}
+/* Ce qui bloque l'ajout sur un rôle : le plafond du métier ou le budget en euros */
+function limitBy(L, code){ const x=L[code]; const roleRoom=Math.max(0,x.cap-x.total); const t=tjm(code); return (t>0 && Math.max(0,L['€'].free)/t < roleRoom) ? '€' : code; }
+function setAlloc(id, code, want, src){
+  const p=byId()[id]; if(!p||p.socle) return;
+  const cur=(S.me.alloc[id]&&Number(S.me.alloc[id][code]))||0;
+  const L=myLoad(); const maxV=cur+roomFor(L,code);
+  let v=Math.max(0, Math.min(MAX_J, r05(want))); let capped=false;
+  if(v>cur && v>maxV){ v=maxV; capped=true; }
+  const o=Object.assign({}, S.me.alloc[id]||{}); if(v>0) o[code]=v; else delete o[code];
+  if(Object.keys(o).length) S.me.alloc[id]=o; else delete S.me.alloc[id];
+  if(v!==cur) changed();
+  const why = capped ? limitBy(L, code) : null;
+  refreshJours(capped?[why]:[]);
+  const msg=document.querySelector(`#jours-body .acard[data-card="${cssEsc(id)}"] [data-msg]`);
+  const txt = capped ? `Bloqué à ${fmt(v)} j : ${why==='€'?'le budget est atteint':'plus de jours libres en '+court(code)}.` : '';
+  if(msg) msg.textContent = txt;
+  if(capped) announce(txt);
+  else if(src==='btn') announce(`${court(code)} : ${fmt(v)} ${plural(v,'jour','jours')} sur « ${p.titre} »`);
+}
+
+/* ----- Étape 5 : top 5 ----- */
 function fillTop(){
   const el=$('#top-body'); const list=topList(); const m=byId();
   if(!list.length){ el.innerHTML=`<div class="empty">${BIN(40)}<span>Vous n'avez encore gardé aucun projet. <a href="#tri">Garder ou retirer</a>.</span></div>`; return; }
-  if(!fits()){ el.innerHTML=`<div class="banner warn"><p>Ça ne rentre pas encore. <a href="#tri" data-act="go" data-to="tri">Retour au bilan</a></p></div>`; }
+  if(!fits()){ el.innerHTML=`<div class="banner warn"><p>La répartition des jours n'est pas terminée. <a href="#jours" data-act="go" data-to="jours">Répartir les jours</a></p></div>`; }
   else el.innerHTML='';
   let h=`<ol class="rank" id="rank">`;
   list.forEach((id,i)=>{ const p=m[id];
     if(i===TOP_N) h+=`</ol><div class="cut">Hors top ${TOP_N} : gardé, sans priorité</div><ol class="rank" start="${TOP_N+1}" id="rank2">`;
-    h+=`<li draggable="true" data-id="${esc(id)}" class="${i<TOP_N?'top':''}"><span class="handle" aria-hidden="true">⋮⋮</span><span class="pos">${i+1}</span><div class="t"><strong>${esc(p.titre)}</strong><div class="small muted">${fmt(total(p,S.me.estim))} j</div></div>
+    h+=`<li draggable="true" data-id="${esc(id)}" class="${i<TOP_N?'top':''}"><span class="handle" aria-hidden="true">⋮⋮</span><span class="pos">${i+1}</span><div class="t"><strong>${esc(p.titre)}</strong><div class="small muted">${fmt(total(p,S.me.alloc))} j · ${eur(cost(p,S.me.alloc))}</div></div>
       <span class="mv"><button class="btn sec icon" data-act="up" data-id="${esc(id)}" ${i===0?'disabled':''} aria-label="Monter « ${esc(p.titre)} »">↑</button><button class="btn sec icon" data-act="down" data-id="${esc(id)}" ${i===list.length-1?'disabled':''} aria-label="Descendre « ${esc(p.titre)} »">↓</button></span></li>`; });
   h+=`</ol>`;
   const needName=!S.me.prenom.trim();
@@ -906,7 +1018,7 @@ function fillTop(){
     ${S.localWrite?`<h3 style="margin:18px 0 6px">${loc?'Mon code':'Votre code à envoyer à Lucas'}</h3><textarea class="code" id="my-code" readonly>${esc(myCode())}</textarea><div class="form-actions"><button class="btn sec sm" data-act="copy-code">Copier mon code</button></div>`:''}
   </div>`;
   el.innerHTML+=h; bindDrag();
-  const tn=$('#top-nav'); if(tn) tn.innerHTML=stepNav({to:'tri',label:'Garder ou retirer'},{act:'send',label:loc?(S.me.envoye?'Mon code est à jour':'Obtenir mon code'):(S.me.envoye?'Renvoyer mes choix':'Envoyer mes choix'),disabled:!fits()||needName||(loc&&S.me.envoye)});
+  const tn=$('#top-nav'); if(tn) tn.innerHTML=stepNav({to:'jours',label:'Répartir les jours'},{act:'send',label:loc?(S.me.envoye?'Mon code est à jour':'Obtenir mon code'):(S.me.envoye?'Renvoyer mes choix':'Envoyer mes choix'),disabled:!fits()||needName||(loc&&S.me.envoye)});
 }
 function setOrder(list){ S.me.top=list.slice(0,TOP_N); S.me.garde=list.slice(); changed(); fillTop(); renderSteps(); }
 function move(id,d){ const s=topList(); const i=s.indexOf(id), j=i+d; if(i<0||j<0||j>=s.length) return; [s[i],s[j]]=[s[j],s[i]]; setOrder(s);
@@ -921,7 +1033,7 @@ function bindDrag(){
   });
 }
 
-/* ----- Étape 4 : synthèse ----- */
+/* ----- Synthèse (animateur) ----- */
 function participants(){
   const list=[];
   if(S.mode==='shared') for(const [id,v] of Object.entries(S.choix)){ if(id===S.uid&&S.localWrite) continue; list.push(Object.assign({id}, v, {prenom:v.prenom||'Sans prénom'})); }
@@ -935,43 +1047,48 @@ function computeSynthese(){
   const m=byId();
   const ps=participants().filter(p=>p.envoye||S.includeEnCours).map(p=>{ const g=(p.garde||[]).filter(id=>m[id]&&!m[id].socle); return Object.assign({},p,{garde:g, top:(p.top||[]).filter(id=>g.includes(id)).slice(0,TOP_N)}); }).filter(p=>p.garde.length);
   const N=ps.length; const st={};
-  for(const p of jeux()) st[p.id]={p, n:0, ntop:0, score:0, plus:0, moins:0};
+  for(const p of jeux()) st[p.id]={p, n:0, ntop:0, score:0, sum:{}, min:Infinity, max:0};
   for(const x of ps){
-    for(const id of x.garde){ const s=st[id]; if(!s) continue; s.n++; s.score+=1; const e=x.estim&&x.estim[id]; if(e){ const b=SIZE_ORDER.indexOf(baseSize(s.p)), v=SIZE_ORDER.indexOf(estimSize(s.p, e)); if(v>b) s.plus++; if(v<b) s.moins++; } }
+    for(const id of x.garde){ const s=st[id]; if(!s) continue; s.n++; s.score+=1; const d=days(s.p, x.alloc); for(const k in d) s.sum[k]=(s.sum[k]||0)+d[k]; const tt=sumDays(d); s.min=Math.min(s.min,tt); s.max=Math.max(s.max,tt); }
     x.top.forEach((id,i)=>{ const s=st[id]; if(!s) return; s.ntop++; s.score+=TOP_N-i; });
   }
+  /* Jours moyens alloués par celles et ceux qui ont gardé le projet */
+  const avg={};
+  for(const s of Object.values(st)){ if(!s.n){ s.min=0; continue; } const o={}; for(const k in s.sum){ const v=r05(s.sum[k]/s.n); if(v>0) o[k]=v; } avg[s.p.id]=o; }
   const rows=Object.values(st).sort((a,b)=>b.score-a.score||b.n-a.n||a.p.titre.localeCompare(b.p.titre));
   const teamSel=[], out=[];
-  for(const s of rows){ if(!s.n) continue; const wo=wouldOver(load(teamSel), s.p); if(wo.length) out.push({s,wo}); else teamSel.push(s.p.id); }
-  return {ps,N,rows,teamSel,out};
+  for(const s of rows){ if(!s.n) continue; const wo=wouldOver(load(teamSel, avg), s.p, avg); if(wo.length) out.push({s,wo}); else teamSel.push(s.p.id); }
+  return {ps,N,rows,teamSel,out,avg};
 }
 function signal(n,N){ if(!N||!n) return ''; const r=n/N; if(r>=.75) return `<span class="sig fort">Consensus</span>`; if(r>=.4) return `<span class="sig debat">À débattre</span>`; return `<span class="sig mino">Minoritaire</span>`; }
 function fillSynthese(){
-  const all=participants(); const {ps,N,rows,teamSel,out}=computeSynthese(); const m=byId();
+  const all=participants(); const {ps,N,rows,teamSel,out,avg}=computeSynthese(); const m=byId();
+  const wcode=c=>c==='€'?'budget':court(c);
   let h=`<div class="toolbar"><strong>${all.length} ${plural(all.length,'participant','participants')}</strong>
     <label class="check"><input type="checkbox" id="s-encours" ${S.includeEnCours?'checked':''}> Inclure les choix pas encore envoyés</label>
     <span style="flex:1"></span>${N?`<button class="btn sec sm" data-act="copy-syn">Copier le tableau</button>`:''}</div>
     <div class="people">${all.map(p=>`<span class="person ${p.envoye?'ok':''}">${p.envoye?'✓ ':''}${esc(p.prenom)}${p.importe?' (importé)':''}${p.envoye?'':' (en cours)'}</span>`).join('')||'<span class="muted">Personne n\'a encore commencé.</span>'}</div>`;
   if(!N){ $('#syn-body').innerHTML=h+`<div class="empty">${BIN(40)}<span>Les résultats apparaîtront ici dès qu'une personne aura envoyé ses choix.</span></div>`; return; }
   const voted=rows.filter(s=>s.n), zero=rows.filter(s=>!s.n);
-  h+=`<h2 style="margin:6px 0 10px">Classement collectif</h2><div class="tbl"><table class="syn"><thead><tr><th>#</th><th>Projet</th><th>Gardé par</th><th style="text-align:right">Dans un top ${TOP_N}</th><th style="text-align:right">Score</th><th style="text-align:right">Jours</th><th>Taille réévaluée</th><th>Signal</th></tr></thead><tbody>
+  h+=`<h2 style="margin:6px 0 10px">Classement collectif</h2><div class="tbl"><table class="syn"><thead><tr><th>#</th><th>Projet</th><th>Gardé par</th><th style="text-align:right">Dans un top ${TOP_N}</th><th style="text-align:right">Score</th><th style="text-align:right">Jours (moyenne)</th><th>Détail moyen</th><th style="text-align:right">Coût moyen</th><th>Signal</th></tr></thead><tbody>
     ${voted.map((s,i)=>`<tr><td class="num"><span class="days">${i+1}</span></td><td><strong>${esc(s.p.titre)}</strong></td>
       <td><div class="share"><div class="bar"><span style="width:${s.n/N*100}%"></span></div><span class="small">${s.n}/${N}</span></div></td>
-      <td class="num">${s.ntop}</td><td class="num"><span class="days">${s.score}</span></td><td class="num">${fmt(total(s.p))} j</td>
-      <td class="small">${s.plus?`↑ plus gros pour ${s.plus}`:''}${s.plus&&s.moins?'<br>':''}${s.moins?`↓ plus petit pour ${s.moins}`:''}</td><td>${signal(s.n,N)}</td></tr>`).join('')}
+      <td class="num">${s.ntop}</td><td class="num"><span class="days">${s.score}</span></td><td class="num">${fmt(total(s.p,avg))} j${s.n>1&&s.max>s.min?`<div class="small muted">de ${fmt(s.min)} à ${fmt(s.max)} j</div>`:''}</td>
+      <td class="small">${Object.entries(days(s.p,avg)).map(([k,v])=>esc(court(k))+' '+fmt(v)+' j').join('<br>')}</td><td class="num">${eur(cost(s.p,avg))}</td><td>${signal(s.n,N)}</td></tr>`).join('')}
     </tbody></table></div>`;
   if(zero.length) h+=`<p class="small muted" style="margin:10px 0 0"><strong>Personne ne les a gardés :</strong> ${zero.map(s=>esc(s.p.titre)).join(', ')}.</p>`;
   h+=`<h2 style="margin:26px 0 6px">Panier d'équipe proposé</h2>
-    <div class="panel light">${gaugesHtml(load(teamSel),{light:true})}</div>
-    <div class="team"><div class="panel"><h3>Ça rentre</h3><ul>${teamSel.map((id,i)=>`<li><span class="ic">${i+1}.</span><span>${esc(m[id].titre)} <span class="muted small">(${fmt(total(m[id]))} j)</span></span></li>`).join('')||'<li class="muted">Rien pour l\'instant.</li>'}</ul></div>
-    <div class="panel"><h3>Ne rentre pas, malgré des votes</h3><ul>${out.map(o=>`<li class="out"><span class="ic">✕</span><span>${esc(o.s.p.titre)} <span class="small">(${o.s.n}/${N}, bloqué par ${o.wo.map(w=>esc(court(w.code))).join(', ')})</span></span></li>`).join('')||'<li class="muted">Tout ce qui a été gardé rentre.</li>'}</ul></div></div>`;
+    <p class="small muted" style="margin:0 0 10px">Projets pris dans l'ordre du classement, avec les jours moyens alloués, tant que ça rentre.</p>
+    <div class="panel light">${gaugesHtml(load(teamSel, avg),{team:true})}</div>
+    <div class="team"><div class="panel"><h3>Ça rentre</h3><ul>${teamSel.map((id,i)=>`<li><span class="ic">${i+1}.</span><span>${esc(m[id].titre)} <span class="muted small">(${fmt(total(m[id],avg))} j · ${eur(cost(m[id],avg))})</span></span></li>`).join('')||'<li class="muted">Rien pour l\'instant.</li>'}</ul></div>
+    <div class="panel"><h3>Ne rentre pas, malgré des votes</h3><ul>${out.map(o=>`<li class="out"><span class="ic">✕</span><span>${esc(o.s.p.titre)} <span class="small">(${o.s.n}/${N}, bloqué par ${o.wo.map(w=>esc(wcode(w.code))).join(', ')})</span></span></li>`).join('')||'<li class="muted">Tout ce qui a été gardé rentre.</li>'}</ul></div></div>`;
   h+=`<h2 style="margin:26px 0 10px">Le top ${TOP_N} de chacun et chacune</h2><div class="cols">${ps.map(p=>`<div class="col"><h3>${esc(p.prenom)}</h3><ol>${p.top.map(id=>`<li>${esc(m[id].titre)}</li>`).join('')}</ol>${p.garde.length>p.top.length?`<p class="small muted" style="margin:6px 0 0">+ ${p.garde.length-p.top.length} autre${p.garde.length-p.top.length>1?'s':''} gardé${p.garde.length-p.top.length>1?'s':''}</p>`:''}</div>`).join('')}</div>`;
   $('#syn-body').innerHTML=h;
 }
 function synTsv(){
-  const {N,rows,teamSel}=computeSynthese();
-  const head=['Rang','Projet','Gardé par','Dans un top 5','Score','Jours','Réévalué plus gros','Réévalué plus petit',"Dans le panier d'équipe"];
-  const lines=rows.map((s,i)=>[s.n?i+1:'', s.p.titre, s.n+'/'+N, s.ntop, s.score, fmt(total(s.p)), s.plus, s.moins, teamSel.includes(s.p.id)?'oui':'non']);
+  const {N,rows,teamSel,avg}=computeSynthese();
+  const head=['Rang','Projet','Gardé par','Dans un top 5','Score','Jours (moyenne)'].concat(roles().map(r=>court(r.code)+' (moyenne)'),['Coût moyen (€)',"Dans le panier d'équipe"]);
+  const lines=rows.map((s,i)=>{ const d=days(s.p,avg); return [s.n?i+1:'', s.p.titre, s.n+'/'+N, s.ntop, s.score, fmt(total(s.p,avg))].concat(roles().map(r=>fmt(d[r.code]||0)),[Math.round(cost(s.p,avg)), teamSel.includes(s.p.id)?'oui':'non']); });
   return [head].concat(lines).map(l=>l.map(v=>String(v).replace(/[\t\n]/g,' ')).join('\t')).join('\n');
 }
 function renderImport(){
@@ -990,11 +1107,11 @@ async function doImport(){
     if(S.mode==='shared'&&!S.localWrite){
       try{
         for(const p of im.projets) if(!existing[p.id]) await S.db.collection('projets').doc(p.id).set(Object.assign(packProjet(p),{contient:[],origine:'equipe',auteur:'',auteurPrenom:im.prenom,ordre:500,cree:Date.now(),socle:false}));
-        await S.db.doc('choix/'+pid).set({prenom:im.prenom, garde:im.garde, laisse:[], top:im.top, estim:im.estim, envoye:true, importe:true, maj:Date.now()});
+        await S.db.doc('choix/'+pid).set({prenom:im.prenom, garde:im.garde, laisse:[], top:im.top, alloc:im.alloc, envoye:true, importe:true, maj:Date.now()});
       }catch(e){ err.textContent="L'import de "+im.prenom+' a échoué.'; return; }
     } else {
       for(const p of im.projets) if(!existing[p.id] && !S.local.added.some(x=>x.id===p.id)) S.local.added.push(Object.assign(packProjet(p),{local:true, origine:'equipe', auteurPrenom:im.prenom}));
-      S.local.imports=S.local.imports.filter(x=>x.id!==pid).concat([{id:pid, prenom:im.prenom, garde:im.garde, top:im.top, estim:im.estim}]); lsSave();
+      S.local.imports=S.local.imports.filter(x=>x.id!==pid).concat([{id:pid, prenom:im.prenom, garde:im.garde, top:im.top, alloc:im.alloc}]); lsSave();
     }
   }
   $('#imp-text').value=''; err.textContent=errs.length?errs.length+' code(s) ignoré(s) car illisibles.':'';
@@ -1007,7 +1124,9 @@ function renderSettings(){
   el.innerHTML=`<form class="panel" id="set-form">
     <h2>Rôles</h2>
     
-    <table class="settings"><thead><tr><th class="small">Rôle</th><th class="small">Jours</th><th class="small">Poids</th></tr></thead><tbody>${roles().map((r,i)=>`<tr><td><input class="lab" data-rl="${i}" value="${esc(r.label)}" aria-label="Nom du rôle ${i+1}"></td><td><input type="number" min="0" step="1" data-rj="${i}" value="${esc(r.jours)}" aria-label="Jours pour ${esc(r.label)}"></td><td><input type="number" min="0" step="0.5" data-rp="${i}" value="${esc(r.poids||1)}" aria-label="Poids pour ${esc(r.label)}"></td></tr>`).join('')}</tbody></table>
+    <table class="settings"><thead><tr><th class="small">Rôle</th><th class="small">Jours</th><th class="small">Coût jour (€)</th></tr></thead><tbody>${roles().map((r,i)=>`<tr><td><input class="lab" data-rl="${i}" value="${esc(r.label)}" aria-label="Nom du rôle ${i+1}"></td><td><input type="number" min="0" step="1" data-rj="${i}" value="${esc(r.jours)}" aria-label="Jours pour ${esc(r.label)}"></td><td><input type="number" min="0" step="10" data-rt="${i}" value="${esc(tjm(r.code))}" aria-label="Coût jour pour ${esc(r.label)}"></td></tr>`).join('')}</tbody></table>
+    <h2 style="margin-top:18px">Budget annuel (€)</h2>
+    <div class="field" style="max-width:220px;margin-top:8px"><label for="budget">Laisser vide pour : jours × coût jour</label><input type="number" min="0" step="1000" id="budget" value="${cfg().budget!=null&&cfg().budget!==''?esc(cfg().budget):''}" placeholder="${Math.round(roles().reduce((t,r)=>t+(Number(r.jours)||0)*tjm(r.code),0))}"></div>
     <h2 style="margin-top:18px">Tailles (jours)</h2>
     <table class="settings"><tbody><tr>${sizes().map(([k,v])=>`<td><label for="tz-${esc(k)}" class="small" style="font-weight:800">${esc(k)}</label><br><input type="number" min="0" step="0.5" id="tz-${esc(k)}" data-tz="${esc(k)}" value="${esc(v)}"></td>`).join('')}</tr></tbody></table>
     <h2 style="margin-top:18px">Ajouts par personne</h2>
@@ -1016,9 +1135,9 @@ function renderSettings(){
     <div class="form-actions"><button class="btn" type="submit" ${canSave?'':'disabled'}>Enregistrer les réglages</button></div></form>`;
 }
 async function saveSettings(){
-  const rs=roles().map((r,i)=>Object.assign({},r,{label:(document.querySelector(`[data-rl="${i}"]`).value.trim()||r.label).slice(0,60), jours:Math.max(0,Number(document.querySelector(`[data-rj="${i}"]`).value)||0), poids:Math.max(0,Number(document.querySelector(`[data-rp="${i}"]`).value)||1)}));
+  const rs=roles().map((r,i)=>Object.assign({},r,{label:(document.querySelector(`[data-rl="${i}"]`).value.trim()||r.label).slice(0,60), jours:Math.max(0,Number(document.querySelector(`[data-rj="${i}"]`).value)||0), tjm:Math.max(0,Number(document.querySelector(`[data-rt="${i}"]`).value)||0)}));
   const tz={}; document.querySelectorAll('[data-tz]').forEach(inp=>{ tz[inp.dataset.tz]=Math.max(0,Number(inp.value)||0); });
-  const c=Object.assign({}, cfg(), {roles:rs, tailles:tz, maxAjouts:Math.max(0,Math.round(Number($('#max-aj').value)||0))}); const msg=$('#set-err');
+  const bv=$('#budget').value.trim(); const c=Object.assign({}, cfg(), {roles:rs, tailles:tz, maxAjouts:Math.max(0,Math.round(Number($('#max-aj').value)||0)), budget: bv===''?null:Math.max(0,Number(bv)||0)}); const msg=$('#set-err');
   if(S.localWrite){ S.local.config=c; S.config=c; lsSave(); }
   else { try{ await S.db.doc('config/main').set(c); S.config=c; }catch(e){ msg.textContent='Enregistrement impossible.'; return; } }
   msg.style.color='var(--vert-fonce)'; msg.textContent='Réglages enregistrés.'; announce('Réglages enregistrés.');
@@ -1039,17 +1158,14 @@ document.addEventListener('click', e=>{
   else if(act==='del'){ S.confirmDel=id; fillProjets(); }
   else if(act==='del-no'){ S.confirmDel=null; fillProjets(); }
   else if(act==='del-ok') deleteProjet(id);
-  else if(act==='adj'){ S.adjust=id; fillProjets(); const i=document.querySelector('.adjust input'); if(i) i.focus(); }
-  else if(act==='adj-no'){ S.adjust=null; fillProjets(); }
-  else if(act==='adj-ok') saveAdjust(id);
-  else if(act==='adj-reset'){ delete S.me.estim[id]; S.adjust=null; changed(); fillProjets(); renderSteps(); announce('Jours remis au prévu.'); }
   else if(act==='keep') fly(true);
   else if(act==='leave') fly(false);
-  else if(act==='to-bilan'){ S.forceBilan=true; renderBilan(); }
+  else if(act==='to-bilan'){ S.forceBilan=true; renderRecap(); }
   else if(act==='continue'){ S.forceBilan=false; fillTri(); }
-  else if(act==='retri'){ S.me.laisse=[]; S.me.garde=[]; S.me.top=[]; S.forceBilan=false; changed(); lastOver=[]; fillTri(); renderSteps(); }
-  else if(act==='leave-b'){ S.me.garde=garde().filter(x=>x!==id); S.me.laisse=laisse().filter(x=>x!==id).concat([id]); changed(); renderBilan(); renderSteps(); announce('Projet retiré.'); }
-  else if(act==='keep-b'){ S.me.laisse=laisse().filter(x=>x!==id); S.me.garde=garde().filter(x=>x!==id).concat([id]); changed(); renderBilan(); renderSteps(); announce('Projet remis.'); }
+  else if(act==='retri'){ S.me.laisse=[]; S.me.garde=[]; S.me.top=[]; S.me.alloc={}; S.forceBilan=false; changed(); fillTri(); renderSteps(); }
+  else if(act==='leave-r'||act==='leave-j'){ S.me.garde=garde().filter(x=>x!==id); S.me.laisse=laisse().filter(x=>x!==id).concat([id]); freeAlloc(id); changed(); if(act==='leave-r') renderRecap(); else { fillJours(); const h=$('#jours-body h2'); if(h){ h.setAttribute('tabindex','-1'); h.focus(); } } renderSteps(); announce('Projet retiré, ses jours sont libérés.'); }
+  else if(act==='keep-r'||act==='keep-j'){ S.me.laisse=laisse().filter(x=>x!==id); S.me.garde=garde().filter(x=>x!==id).concat([id]); freeAlloc(id); changed(); if(act==='keep-r') renderRecap(); else { fillJours(); const i=document.querySelector(`#jours-body input[data-alloc="${cssEsc(id)}"]`); if(i) i.focus(); } renderSteps(); announce('Projet remis, à zéro jour.'); }
+  else if(act==='plus'||act==='minus'){ const cur=(S.me.alloc[id]&&S.me.alloc[id][b.dataset.role])||0; setAlloc(id, b.dataset.role, cur+(act==='plus'?PAS:-PAS), 'btn'); if(b.disabled){ const o=b.parentNode.querySelector(`[data-act="${act==='plus'?'minus':'plus'}"]`); if(o&&!o.disabled) o.focus(); else { const i=b.parentNode.querySelector('input'); if(i) i.focus(); } } }
   else if(act==='to-top') go('top');
   else if(act==='go'){ e.preventDefault(); go(b.dataset.to); }
   else if(act==='name-ok') submitName();
@@ -1062,11 +1178,24 @@ document.addEventListener('click', e=>{
 });
 document.addEventListener('change', e=>{
   const t=e.target;
-  if(t.dataset && t.dataset.estim){ const p=byId()[t.dataset.estim]; if(!p) return; if(t.value===baseSize(p)) delete S.me.estim[p.id]; else S.me.estim[p.id]=t.value; changed(); renderBilan(); renderSteps(); announce('Taille réévaluée.'); const s=document.querySelector(`select[data-estim="${cssEsc(p.id)}"]`); if(s) s.focus(); return; }
-  if(t.closest && t.closest('#p-form')) updatePreview();
+  if(t.dataset && t.dataset.alloc){ commitAlloc(t); return; }
+  if(t.id==='p-socle'){ const z=$('#p-socle-j'); if(z) z.hidden=!t.checked; }
   if(t.id==='s-encours'){ S.includeEnCours=t.checked; fillSynthese(); }
 });
-document.addEventListener('toggle', e=>{ if(e.target && e.target.id==='p-precis') updatePreview(); if(e.target && e.target.classList && e.target.classList.contains('costbox')){ S.openCost=S.openCost||{}; S.openCost[e.target.dataset.role]=e.target.open; } }, true);
+function commitAlloc(inp){
+  inp.dataset.dirty='';
+  const raw=String(inp.value).trim().replace(',','.').replace(/\s*j(ours?)?$/i,'');
+  const v = raw==='' ? 0 : Number(raw);
+  if(!isFinite(v) || v<0){ const msg=document.querySelector(`#jours-body .acard[data-card="${cssEsc(inp.dataset.alloc)}"] [data-msg]`); if(msg) msg.textContent='Indiquez un nombre de jours, par exemple 2,5.'; refreshJours(); return; }
+  setAlloc(inp.dataset.alloc, inp.dataset.role, v, 'input');
+}
+document.addEventListener('input', e=>{ const t=e.target; if(t.dataset && t.dataset.alloc) t.dataset.dirty='1'; });
+document.addEventListener('keydown', e=>{
+  const t=e.target; if(!t.dataset || !t.dataset.alloc) return;
+  if(e.key==='Enter'){ e.preventDefault(); commitAlloc(t); t.select&&t.select(); }
+  else if(e.key==='ArrowUp'||e.key==='ArrowDown'){ e.preventDefault(); const cur=(S.me.alloc[t.dataset.alloc]&&S.me.alloc[t.dataset.alloc][t.dataset.role])||0; setAlloc(t.dataset.alloc, t.dataset.role, cur+(e.key==='ArrowUp'?PAS:-PAS), 'btn'); }
+});
+document.addEventListener('focusin', e=>{ const t=e.target; if(t.dataset && t.dataset.alloc && t.select) setTimeout(()=>{ try{ t.select(); }catch(_){} },0); });
 document.addEventListener('submit', e=>{ e.preventDefault(); if(e.target.id==='name-form') submitName(); if(e.target.id==='p-form') submitForm(); if(e.target.id==='set-form') saveSettings(); });
 
 window.addEventListener('hashchange', route);

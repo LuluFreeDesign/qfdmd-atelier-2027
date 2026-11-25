@@ -1,7 +1,9 @@
 # Que faire de mon équipe produit en 2027 ?
 
 Outil d'atelier pour l'équipe Que faire de mes objets et déchets (séminaire du 30 novembre 2026).
-Chacun lit les projets possibles, en propose jusqu'à 5, trie (garder ou retirer) en respectant le temps de l'équipe, puis classe son top 5.
+Chacun lit les projets possibles et en propose jusqu'à 5, trie (garder ou retirer) sans notion de coût, puis répartit les jours de chaque métier (Dev, Design / PO, Contenu & SEO) sur les projets gardés, par demi-journée, dans la limite du temps et du budget de l'équipe. Enfin, chacun classe son top 5.
+
+Tous les projets partent de zéro jour. Le temps incompressible est déjà compté. Le coût en euros = jours × coût d'une journée du métier.
 
 ## Pendant l'atelier
 
@@ -15,7 +17,8 @@ Les choix restent dans le navigateur de chacun (localStorage) : aucune donnée n
 
 ## Modifier le contenu
 
-- Liste des projets, rôles et capacités : `src/seed.json`
+- Liste des projets, rôles, jours disponibles et coût d'une journée (`tjm`) : `src/seed.json`
+- Budget annuel : `budget` dans `src/seed.json` (laisser `null` pour jours × coût d'une journée)
 - Interface : `src/template.html`
 - Puis reconstruire la page : `python3 build.py` (génère `index.html`)
 

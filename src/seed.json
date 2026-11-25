@@ -1,6 +1,6 @@
 {
  "config": {
-  "version": 2,
+  "version": 3,
   "roles": [
    {
     "code": "DEV",
@@ -8,7 +8,8 @@
     "court": "Dev",
     "jours": 116,
     "poids": 3,
-    "note": "2,5 j/sem toute l'année"
+    "note": "2,5 j/sem toute l'année",
+    "tjm": 650
    },
    {
     "code": "DES",
@@ -16,7 +17,8 @@
     "court": "Design / PO",
     "jours": 58,
     "poids": 1,
-    "note": "1,25 j/sem toute l'année"
+    "note": "1,25 j/sem toute l'année",
+    "tjm": 600
    },
    {
     "code": "SEO",
@@ -24,7 +26,8 @@
     "court": "Contenu & SEO",
     "jours": 69,
     "poids": 1,
-    "note": "1,5 j/sem toute l'année"
+    "note": "1,5 j/sem toute l'année",
+    "tjm": 550
    }
   ],
   "tailles": {
@@ -35,7 +38,8 @@
    "XL": 40,
    "XXL": 60
   },
-  "maxAjouts": 5
+  "maxAjouts": 5,
+  "budget": null
  },
  "projets": [
   {
@@ -108,12 +112,7 @@
     "Recueil du taux de compréhension intégré au site, sans pop-up",
     "Retravailler le haut des fiches pour que l'information arrive plus vite à la navigation, notamment sur mobile",
     "Différencier les fiches en fonction de l'intention des usagers, en déterminant le meilleur parcours possible pour chaque fiche, pour optimiser les VO et répondre au besoin des usagers"
-   ],
-   "precis": true,
-   "efforts": {
-    "DEV": "L",
-    "DES": "M"
-   }
+   ]
   },
   {
    "id": "ep-carte-assistant",
@@ -130,39 +129,21 @@
     "Améliorer l'expérience des filtres",
     "Supprimer le format tablette, qui n'est pas toujours cohérent, et repenser les formats de la carte pour qu'elle soit utilisable au mieux sur mobile",
     "Mieux gérer l'UX « Aucun résultat »"
-   ],
-   "precis": true,
-   "efforts": {
-    "DEV": "L",
-    "DES": "M"
-   }
+   ]
   },
   {
    "id": "ep-solutions",
    "ordre": 12,
    "titre": "Solutions en ligne et à domicile sur le site",
    "desc": "Rendre consultables sur Que faire les solutions en ligne, à domicile et les lieux.",
-   "contient": [],
-   "precis": false,
-   "taille": "L",
-   "roles": [
-    "DEV",
-    "DES",
-    "SEO"
-   ]
+   "contient": []
   },
   {
    "id": "ep-triptyque",
    "ordre": 13,
    "titre": "Restructurer les gestes (consignes et solutions) en pensant à un triptyque Réparer - Réemployer - Recycler",
    "desc": "Retravailler consignes et gestes pour intégrer « Prêter » dans « Réemployer » et mieux visibiliser ce geste. Permettrait aussi de simplifier la compréhension. L'idée n'est pas de perdre la précision, mais de visibiliser le triptyque et de faciliter l'administration du suivi des gestes.",
-   "contient": [],
-   "precis": true,
-   "efforts": {
-    "SEO": "M",
-    "DES": "S",
-    "DEV": "S"
-   }
+   "contient": []
   },
   {
    "id": "ep-seo-geo",
@@ -174,13 +155,7 @@
     "Rendre le site lisible par les IA, avec d'autres formats que le HTML",
     "Visibiliser auprès des IA GEO la hiérarchie des gestes, la fiabilité et la paternité de l'information, mettre en avant dans la mesure du possible le plus de finesse possible dans la réponse",
     "Mesurer la part de voix de Que faire dans les réponses des IA"
-   ],
-   "precis": true,
-   "efforts": {
-    "SEO": "XL",
-    "DEV": "M",
-    "DES": "M"
-   }
+   ]
   },
   {
    "id": "ep-opendata-consignes",
@@ -192,13 +167,7 @@
     "Mieux signaler les consignes à spécificités locales",
     "Clés de jointure avec l'open data des solutions, pour faciliter la communication et l'interopérabilité entre les deux BDD et rendre l'UX d'usager plus poussée pour nos réutilisateurs",
     "Notation rapide de la donnée par les réutilisateurs"
-   ],
-   "precis": true,
-   "efforts": {
-    "DEV": "M",
-    "SEO": "S",
-    "DES": "XS"
-   }
+   ]
   },
   {
    "id": "ep-visibilite",
@@ -208,13 +177,7 @@
    "contient": [
     "En coop bizdev, organiser un hackathon open data avec data.gouv",
     "Mieux comprendre qui sont nos réutilisateurs et les intégrer dans la construction de nos BDD"
-   ],
-   "precis": true,
-   "efforts": {
-    "DES": "M",
-    "SEO": "S",
-    "DEV": "XS"
-   }
+   ]
   },
   {
    "id": "ep-ecosysteme",
@@ -225,13 +188,7 @@
     "Plus de synergies avec les autres start-ups et l'ADEME, pour travailler la notion d'écosystème et booster le linking",
     "Développer les parcours éditoriaux autour de la réduction, de la réparation et de la consommation responsable",
     "Une stratégie de contenus saisonniers et événementiels"
-   ],
-   "precis": true,
-   "efforts": {
-    "SEO": "L",
-    "DES": "S",
-    "DEV": "XS"
-   }
+   ]
   },
   {
    "id": "ep-pilotage",
@@ -241,12 +198,7 @@
    "contient": [
     "Harmoniser la mesure d'impact (PostHog, Metabase)",
     "Déterminer des profils d'usagers à partir des informations actuelles (enquêtes, études, etc.) pour affiner la segmentation de nos usagers"
-   ],
-   "precis": true,
-   "efforts": {
-    "DES": "M",
-    "DEV": "XS"
-   }
+   ]
   }
  ]
 }
