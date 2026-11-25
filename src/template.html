@@ -458,8 +458,15 @@ const S = {
 const $ = (s, el) => (el||document).querySelector(s);
 const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt = n => (Math.round(n*10)/10).toString().replace('.', ',');
-const EUR = (()=>{ try{ return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}); }catch(e){ return {format:n=>Math.round(n)+' €'}; } })();
-const eur = n => EUR.format(Math.round(n||0));
+/* Monnaie de l'atelier : les calculs restent en euros, l'affichage est converti (1 000 € = 100 trimaniaques) */
+const NUM = (()=>{ try{ return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:0}); }catch(e){ return {format:n=>String(Math.round(n))}; } })();
+function taux(){ const x=Number(cfg().taux); return isFinite(x)&&x>0 ? x : (Number(SEED.config.taux)||0.1); }
+function monnaie(){ return String(cfg().monnaie||SEED.config.monnaie||'trimaniaques'); }
+function monnaieSing(){ return monnaie().replace(/s$/,''); }
+function tm(e){ return (e||0)*taux(); }
+const eur = n => { const v=Math.round(tm(n)); return NUM.format(v)+'\u00a0'+(Math.abs(v)>1?monnaie():monnaieSing()); };
+const eurNu = n => NUM.format(Math.round(tm(n)));
+const eurJour = n => fmt(tm(n))+'\u00a0'+monnaie();
 const plural = (n, a, b) => n>1 ? b : a;
 const rid = () => 'eq-' + Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-4);
 const uniq = a => [...new Set(a)];
@@ -825,7 +832,7 @@ async function submitForm(){
 
 /* ----- Jauges ----- */
 function gaugeCell(o){
-  const {key,label,x,unit,shake}=o; const f = unit==='€' ? eur : (n=>fmt(n)+' j');
+  const {key,label,x,unit,shake}=o; const f = unit==='€' ? eur : (n=>fmt(n)+' j'); const fv = unit==='€' ? eurNu : f;
   const den=Math.max(x.cap,x.total,1);
   const pInc=Math.min(x.inc,x.cap)/den*100; const selIn=Math.max(0,Math.min(x.sel,x.cap-x.inc)); const pSel=selIn/den*100; const pOver=x.over/den*100;
   const full = x.over<=0.0001 && (unit==='€' ? x.free<1 : x.free<0.5);
@@ -833,13 +840,13 @@ function gaugeCell(o){
   const status = x.over>0.0001 ? '⚠ '+f(x.over)+' de trop' : full ? 'Plus rien de libre' : f(x.free)+(unit==='€'?' restants':' libres');
   const lab=`${label} : ${f(x.total)} sur ${f(x.cap)}, ${status}`;
   return `<div class="ag ${state} ${shake?'shake':''}" data-g="${esc(key)}" role="img" aria-label="${esc(lab)}">
-    <div class="ag-top" aria-hidden="true"><span class="g-label">${esc(label)}</span><b class="ag-val">${f(x.total)} <span class="muted">/ ${f(x.cap)}</span></b></div>
+    <div class="ag-top" aria-hidden="true"><span class="g-label">${esc(label)}</span><b class="ag-val">${fv(x.total)} <span class="muted">/ ${fv(x.cap)}</span></b></div>
     <span class="g-track" aria-hidden="true"><span class="g-inc" style="width:${pInc}%"></span>${pSel>0?`<span class="g-sel" style="width:${pSel}%"></span>`:''}${pOver>0?`<span class="g-over" style="width:${pOver}%"></span>`:''}${x.over>0?`<span class="g-cap" style="left:calc(${x.cap/den*100}% - 1px)"></span>`:''}</span>
     <span class="ag-st" aria-hidden="true">${status}</span></div>`;
 }
 function gaugesHtml(L, opts){
   opts=opts||{}; const sh=opts.shake||[];
-  return `<div class="agrid">${roles().map(r=>gaugeCell({key:r.code,label:court(r.code),x:L[r.code],unit:'j',shake:sh.includes(r.code)})).join('')}${gaugeCell({key:'€',label:'Budget produit',x:L['€'],unit:'€',shake:sh.includes('€')})}</div>
+  return `<div class="agrid">${roles().map(r=>gaugeCell({key:r.code,label:court(r.code),x:L[r.code],unit:'j',shake:sh.includes(r.code)})).join('')}${gaugeCell({key:'€',label:'Budget ('+monnaie()+')',x:L['€'],unit:'€',shake:sh.includes('€')})}</div>
     <div class="legend"><span><i class="lg-inc"></i>Temps incompressible</span><span><i class="lg-sel"></i>${opts.team?'Panier d’équipe':'Mes projets'}</span><span><i class="lg-over"></i>Dépassement</span></div>`;
 }
 
@@ -928,7 +935,7 @@ function fillJours(){
   if(el.firstChild && sig===joursSig){ refreshJours(); return; }
   joursSig=sig;
   const m=byId(); const l=laisse(); const inc=allProjets().filter(p=>p.socle);
-  const rates=roles().map(r=>`${esc(court(r.code))} ${eur(tjm(r.code))}`).join(' · ');
+  const rates=roles().map(r=>`${esc(court(r.code))} ${esc(eurJour(tjm(r.code)))}`).join(' · ');
   const stepper=(p,r)=>{ const lab=court(r.code); return `<div class="stp" data-role="${esc(r.code)}">
       <label class="stp-l" for="al-${esc(p.id)}-${esc(r.code)}">${esc(lab)}</label>
       <div class="stp-c"><button type="button" class="stp-b" data-act="minus" data-id="${esc(p.id)}" data-role="${esc(r.code)}" aria-label="Enlever une demi-journée de ${esc(lab)} sur « ${esc(p.titre)} »">−</button><input class="stp-in" id="al-${esc(p.id)}-${esc(r.code)}" inputmode="decimal" autocomplete="off" data-alloc="${esc(p.id)}" data-role="${esc(r.code)}" value="0" aria-describedby="msg-${esc(p.id)}"><span class="stp-u" aria-hidden="true">j</span><button type="button" class="stp-b" data-act="plus" data-id="${esc(p.id)}" data-role="${esc(r.code)}" aria-label="Ajouter une demi-journée de ${esc(lab)} sur « ${esc(p.titre)} »">+</button></div>
@@ -937,7 +944,7 @@ function fillJours(){
     <div class="intro" style="margin-bottom:18px"><div><h1>Répartir les jours</h1>
       <p class="muted" style="margin:8px 0 0;max-width:70ch">Chaque projet gardé part de zéro. Indiquez combien de jours chaque métier y consacre, par demi-journée. Le temps incompressible est déjà compté. Si ça ne rentre pas, retirez des projets.</p></div></div>
     <div class="alloc-head" id="alloc-head"><div id="j-gauges"></div><div id="j-alert" role="status"></div></div>
-    <p class="small muted" style="margin:16px 0 0">Coût d'une journée : ${rates}.</p>
+    <p class="small muted" style="margin:16px 0 0">Une journée coûte : ${rates}. Le budget de l'équipe est en ${esc(monnaie())}, la monnaie de l'atelier (1 000 € = ${NUM.format(1000*taux())} ${esc(monnaie())}).</p>
     <section class="group" style="margin-top:24px"><div class="group-h"><h2>Mes projets gardés (${g.length})</h2></div>
       ${g.length?`<div class="acards">${g.map(id=>{ const p=m[id]; return `<article class="acard" data-card="${esc(p.id)}">
         <div class="acard-h"><div><h3>${esc(p.titre)}</h3>${p.desc?`<p class="small muted" style="margin:4px 0 0">${esc(p.desc)}</p>`:''}</div><button class="btn ghost" data-act="leave-j" data-id="${esc(p.id)}" aria-label="Retirer « ${esc(p.titre)} »">Retirer</button></div>
@@ -1087,8 +1094,8 @@ function fillSynthese(){
 }
 function synTsv(){
   const {N,rows,teamSel,avg}=computeSynthese();
-  const head=['Rang','Projet','Gardé par','Dans un top 5','Score','Jours (moyenne)'].concat(roles().map(r=>court(r.code)+' (moyenne)'),['Coût moyen (€)',"Dans le panier d'équipe"]);
-  const lines=rows.map((s,i)=>{ const d=days(s.p,avg); return [s.n?i+1:'', s.p.titre, s.n+'/'+N, s.ntop, s.score, fmt(total(s.p,avg))].concat(roles().map(r=>fmt(d[r.code]||0)),[Math.round(cost(s.p,avg)), teamSel.includes(s.p.id)?'oui':'non']); });
+  const head=['Rang','Projet','Gardé par','Dans un top 5','Score','Jours (moyenne)'].concat(roles().map(r=>court(r.code)+' (moyenne)'),['Coût moyen ('+monnaie()+')',"Dans le panier d'équipe"]);
+  const lines=rows.map((s,i)=>{ const d=days(s.p,avg); return [s.n?i+1:'', s.p.titre, s.n+'/'+N, s.ntop, s.score, fmt(total(s.p,avg))].concat(roles().map(r=>fmt(d[r.code]||0)),[Math.round(tm(cost(s.p,avg))), teamSel.includes(s.p.id)?'oui':'non']); });
   return [head].concat(lines).map(l=>l.map(v=>String(v).replace(/[\t\n]/g,' ')).join('\t')).join('\n');
 }
 function renderImport(){

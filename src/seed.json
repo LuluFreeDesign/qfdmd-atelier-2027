@@ -9,7 +9,7 @@
     "jours": 116,
     "poids": 3,
     "note": "2,5 j/sem toute l'année",
-    "tjm": 650
+    "tjm": 941
    },
    {
     "code": "DES",
@@ -18,7 +18,7 @@
     "jours": 58,
     "poids": 1,
     "note": "1,25 j/sem toute l'année",
-    "tjm": 600
+    "tjm": 739
    },
    {
     "code": "SEO",
@@ -27,7 +27,7 @@
     "jours": 69,
     "poids": 1,
     "note": "1,5 j/sem toute l'année",
-    "tjm": 550
+    "tjm": 739
    }
   ],
   "tailles": {
@@ -39,7 +39,9 @@
    "XXL": 60
   },
   "maxAjouts": 5,
-  "budget": null
+  "budget": 203009,
+  "taux": 0.1,
+  "monnaie": "trimaniaques"
  },
  "projets": [
   {
