@@ -376,8 +376,38 @@ h1{font-size:22px;line-height:1.2}
 .alloc-head .legend i{outline:1px solid rgba(255,255,255,.5)}
 .cur{white-space:nowrap}
 .dur{color:var(--encre-2)}
-.swap{max-width:760px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0 0}
-.swap select{font:inherit;font-size:14px;padding:6px 8px;border:2px solid #000;border-radius:4px;max-width:100%;background:#fff}
+.two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:48px;align-items:start}
+.two-col .group{margin-bottom:0}
+/* Top 5 : projets gardés à gauche, top à droite */
+.topgrid{display:grid;grid-template-columns:minmax(260px,1fr) 3fr;gap:40px;align-items:start}
+.pool-col h2{font-size:17px}
+.pool{list-style:none;margin:0;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px;background:#f6f6f6;border:2px dashed #b5b5b5;border-radius:8px}
+.pool.over{border-color:#000;background:var(--menthe)}
+.pcard{display:flex;align-items:center;gap:10px;background:#fff;border:2px solid #000;border-radius:6px;padding:10px 10px 10px 8px;cursor:grab}
+.pcard .t{flex:1;min-width:0}
+.pcard .t strong{font-weight:600;font-size:14px;line-height:1.3;display:block}
+.pcard.drag,.slot.drag{opacity:.45}
+.pool-empty{padding:12px 6px}
+.handle{cursor:grab;color:#333;font-size:18px;user-select:none;letter-spacing:-3px;flex:none}
+.slots{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.slot{display:flex;align-items:center;gap:16px;min-height:72px;padding:10px 16px;border:2px solid #000;border-radius:8px;background:#fff;cursor:grab}
+.slot .pos{font-family:var(--titre);font-weight:700;font-size:28px;width:36px;flex:none;letter-spacing:-.03em}
+.slot .t{flex:1;min-width:0}
+.slot .t strong{font-weight:600;font-size:16px}
+.slot .mv{display:flex;gap:6px;flex:none}
+.slot.empty{border-style:dashed;border-color:#8f8f8f;background:transparent;cursor:default}
+.slot.empty .pos{color:#8f8f8f}
+.slot-txt{color:#595959;font-size:14px}
+.slot.over{border-color:var(--vert);border-style:solid;background:var(--menthe);box-shadow:0 0 0 3px var(--menthe)}
+/* La poubelle parle, en encart */
+.sent-zone{margin-top:32px;max-width:900px}
+.say{display:flex;align-items:center;gap:24px;background:var(--menthe);border-radius:16px;padding:22px 28px}
+.say .bin{width:84px;height:auto}
+.say-b{position:relative;flex:1;background:#fff;border:2px solid #000;border-radius:20px;padding:16px 22px;box-shadow:4px 4px 0 #000;animation:bubble-pop .4s cubic-bezier(.2,1.5,.4,1)}
+.say-b::before{content:"";position:absolute;left:-11px;top:50%;margin-top:-9px;width:18px;height:18px;background:#fff;border-left:2px solid #000;border-bottom:2px solid #000;transform:rotate(45deg)}
+.say-b p{margin:0;font-family:var(--titre);font-size:20px;font-weight:600;line-height:1.3}
+.say .bin.talk.speak{animation:bin-hop .8s ease-out 1}
+@media (prefers-reduced-motion:reduce){ .say-b{animation:none} }
 
 /* ===== Intros : la poubelle parle, en pleine page ===== */
 body.story-open{overflow:hidden}
@@ -414,7 +444,7 @@ body.story-open{overflow:hidden}
   .bubble::before{left:50%;top:-13px;margin-left:-11px;transform:rotate(135deg)}
   .story-act{width:100%;justify-content:space-between}
 }
-@media (prefers-reduced-motion:reduce){ .bubble.pop{animation:none} .bin .mouth{animation:none!important} }
+@media (prefers-reduced-motion:reduce){ .bubble.pop{animation:none} .bin .mouth,.bin.talk.speak{animation:none!important} }
 .son-btn{border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;color:var(--encre-2);cursor:pointer;padding:6px 4px;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
 .son-btn::before{content:"♪ ";text-decoration:none}
 .son-btn[aria-pressed="false"]{color:#595959}
@@ -640,7 +670,7 @@ function roomFor(L, code){
 function garde(){ const m=byId(); return S.me.garde.filter(id=>m[id]&&!m[id].socle); }
 function laisse(){ const m=byId(); return S.me.laisse.filter(id=>m[id]&&!m[id].socle); }
 function aTrier(){ const g=new Set(garde()), l=new Set(laisse()); return jeux().filter(p=>!g.has(p.id)&&!l.has(p.id)); }
-function topList(){ const g=garde(); const t=S.me.top.filter(id=>g.includes(id)); return t.concat(g.filter(id=>!t.includes(id))); }
+function topList(){ const g=garde(); return uniq(S.me.top.filter(id=>g.includes(id))).slice(0,TOP_N); }
 function myLoad(){ return load(garde(), S.me.alloc); }
 function sansJours(){ const m=byId(); return garde().filter(id=>!total(m[id], S.me.alloc)); }
 function fits(){ if(!garde().length) return false; const L=myLoad(); return !overRoles(L).length && !overBudget(L) && !sansJours().length; }
@@ -1012,7 +1042,6 @@ function fillJours(){
     <div class="intro"><div><h1>Répartir les jours</h1></div></div>
     <div class="alloc-head" id="alloc-head"><div id="j-gauges"></div><div id="j-alert" role="status"></div></div>
     <p class="small muted" style="margin:16px 0 0">Une journée coûte : ${rates}.</p>
-    <p class="small muted" style="margin:4px 0 0">Durée estimée d'un projet : le métier le plus chargé, à son rythme (${roles().map(r=>`${esc(court(r.code))} ${esc(r.note||fmt(rythme(r.code))+' j/sem')}`).join(' · ')}).</p>
     <section class="group" style="margin-top:24px"><div class="group-h"><h2>Mes projets gardés (${g.length})</h2></div>
       ${g.length?`<div class="acards">${g.map(id=>{ const p=m[id]; return `<article class="acard" data-card="${esc(p.id)}">
         <div class="acard-h"><div><h3>${esc(p.titre)}</h3>${p.desc?`<p class="small muted" style="margin:4px 0 0">${esc(p.desc)}</p>`:''}</div><button class="btn ghost" data-act="leave-j" data-id="${esc(p.id)}" aria-label="Retirer « ${esc(p.titre)} »">Retirer</button></div>
@@ -1021,10 +1050,12 @@ function fillJours(){
         <div class="acard-f"><span class="acard-tot" data-tot></span><span class="acard-msg" id="msg-${esc(p.id)}" data-msg aria-live="polite"></span></div>
       </article>`; }).join('')}</div>`:`<div class="empty">${BIN(40)}<span>Aucun projet gardé. <a href="#tri">Garder ou retirer</a>.</span></div>`}
     </section>
+    <div class="two-col">
     ${l.length?`<section class="group"><div class="group-h"><h2>Projets retirés (${l.length})</h2></div>
-      <ul class="rows" style="max-width:760px">${l.map(id=>{ const p=m[id]; return `<li class="left"><div class="t"><strong>${esc(p.titre)}</strong></div><button class="btn sec sm" data-act="keep-j" data-id="${esc(id)}" aria-label="Remettre « ${esc(p.titre)} »">Remettre</button></li>`; }).join('')}</ul></section>`:''}
+      <ul class="rows">${l.map(id=>{ const p=m[id]; return `<li class="left"><div class="t"><strong>${esc(p.titre)}</strong></div><button class="btn sec sm" data-act="keep-j" data-id="${esc(id)}" aria-label="Remettre « ${esc(p.titre)} »">Remettre</button></li>`; }).join('')}</ul></section>`:''}
     <section class="group"><div class="group-h"><h2>Temps incompressible (déjà compté)</h2></div>
-      <ul class="rows inc-rows" style="max-width:760px">${inc.map(p=>`<li><div class="t"><strong>${esc(p.titre)}</strong><div class="chips" style="margin-top:4px">${chipsHtml(p)}</div></div><span class="days">${fmt(total(p))} j · ${eurH(cost(p))}</span></li>`).join('')}</ul></section>
+      <ul class="rows inc-rows">${inc.map(p=>`<li><div class="t"><strong>${esc(p.titre)}</strong><div class="chips" style="margin-top:4px">${chipsHtml(p)}</div></div><span class="days">${fmt(total(p))} j · ${eurH(cost(p))}</span></li>`).join('')}</ul></section>
+    </div>
     <div id="jours-nav"></div>`;
   refreshJours();
 }
@@ -1078,38 +1109,56 @@ function setAlloc(id, code, want, src){
   else if(src==='btn') announce(`${court(code)} : ${fmt(v)} ${plural(v,'jour','jours')} sur « ${p.titre} »`);
 }
 
-/* ----- Étape 5 : top 5 ----- */
+/* ----- Étape 5 : top 5 -----
+   À gauche, les projets gardés qui ne sont pas dans le top ; à droite, les 5 places du top.
+   On glisse un projet d'une liste à l'autre (ou boutons Ajouter / Retirer / ↑ / ↓ au clavier). */
+function topBesoin(){ return Math.min(TOP_N, garde().length); }
+function topComplet(){ return topList().length>=topBesoin(); }
+function sentBubble(txt){ return `<div class="say">${BIN(84,'talk speak')}<div class="say-b"><p>${txt}</p></div></div>`; }
 function fillTop(){
-  const el=$('#top-body'); const list=topList(); const m=byId();
-  if(!list.length){ el.innerHTML=`<div class="empty">${BIN(40)}<span>Vous n'avez encore gardé aucun projet. <a href="#tri">Garder ou retirer</a>.</span></div>`; return; }
-  if(!fits()){ el.innerHTML=`<div class="banner warn"><p>La répartition des jours n'est pas terminée. <a href="#jours" data-act="go" data-to="jours">Répartir les jours</a></p></div>`; }
-  else el.innerHTML='';
-  const top=list.slice(0,TOP_N), autres=list.slice(TOP_N);
-  let h=`<ol class="rank" id="rank">`;
-  top.forEach((id,i)=>{ const p=m[id];
-    h+=`<li draggable="true" data-id="${esc(id)}" class="${i<TOP_N?'top':''}"><span class="handle" aria-hidden="true">⋮⋮</span><span class="pos">${i+1}</span><div class="t"><strong>${esc(p.titre)}</strong><div class="small muted">${fmt(total(p,S.me.alloc))} j · ${eurH(cost(p,S.me.alloc))}</div></div>
-      <span class="mv"><button class="btn sec icon" data-act="up" data-id="${esc(id)}" ${i===0?'disabled':''} aria-label="Monter « ${esc(p.titre)} »">↑</button><button class="btn sec icon" data-act="down" data-id="${esc(id)}" ${i===top.length-1?'disabled':''} aria-label="Descendre « ${esc(p.titre)} »">↓</button></span></li>`; });
-  h+=`</ol>`;
-  if(autres.length) h+=`<div class="swap"><label for="swap-sel" class="small">Un autre projet gardé mérite sa place ?</label><select id="swap-sel">${autres.map(id=>`<option value="${esc(id)}">${esc(m[id].titre)}</option>`).join('')}</select><button class="btn sec sm" data-act="swap5">Le mettre à la place du n°${top.length}</button></div>`;
+  const el=$('#top-body'); const g=garde(); const m=byId();
+  if(!g.length){ el.innerHTML=`<div class="empty">${BIN(40)}<span>Vous n'avez encore gardé aucun projet. <a href="#tri">Garder ou retirer</a>.</span></div>`; return; }
+  const top=topList(); const pool=g.filter(id=>!top.includes(id)); const plein=top.length>=TOP_N;
+  const info=p=>`<div class="small muted">${fmt(total(p,S.me.alloc))} j · ${eurH(cost(p,S.me.alloc))}</div>`;
+  let h=fits()?'':`<div class="banner warn"><p>La répartition des jours n'est pas terminée. <a href="#jours" data-act="go" data-to="jours">Répartir les jours</a></p></div>`;
+  h+=`<div class="topgrid">
+    <section class="pool-col" aria-labelledby="pool-h"><h2 id="pool-h">Mes projets gardés (${pool.length})</h2>
+      <p class="small muted" style="margin:4px 0 14px">Glissez-les dans votre top ${TOP_N}.</p>
+      <ul class="pool" id="pool" data-drop="pool">${pool.map(id=>{ const p=m[id]; return `<li class="pcard" draggable="true" data-id="${esc(id)}"><span class="handle" aria-hidden="true">⋮⋮</span><div class="t"><strong>${esc(p.titre)}</strong>${info(p)}</div><button class="btn sec icon" data-act="top-add" data-id="${esc(id)}" ${plein?'disabled':''} aria-label="Ajouter « ${esc(p.titre)} » au top ${TOP_N}">→</button></li>`; }).join('')||`<li class="pool-empty small muted">Tous vos projets gardés sont dans le top.</li>`}</ul>
+    </section>
+    <section class="top-col" aria-label="Mon top ${TOP_N}">
+      <ol class="slots" id="slots">${Array.from({length:TOP_N},(_,i)=>{ const id=top[i]; if(!id) return `<li class="slot empty" data-drop="slot" data-pos="${i}"><span class="pos">${i+1}</span><span class="slot-txt">${i<g.length?'Glissez un projet ici':'—'}</span></li>`;
+        const p=m[id]; return `<li class="slot" draggable="true" data-drop="slot" data-pos="${i}" data-id="${esc(id)}"><span class="handle" aria-hidden="true">⋮⋮</span><span class="pos">${i+1}</span><div class="t"><strong>${esc(p.titre)}</strong>${info(p)}</div>
+          <span class="mv"><button class="btn sec icon" data-act="up" data-id="${esc(id)}" ${i===0?'disabled':''} aria-label="Monter « ${esc(p.titre)} »">↑</button><button class="btn sec icon" data-act="down" data-id="${esc(id)}" ${i===top.length-1?'disabled':''} aria-label="Descendre « ${esc(p.titre)} »">↓</button><button class="btn sec icon" data-act="top-rm" data-id="${esc(id)}" aria-label="Retirer « ${esc(p.titre)} » du top">✕</button></span></li>`; }).join('')}</ol>
+    </section></div>`;
   const needName=!S.me.prenom.trim();
   const loc=S.mode==='local'; const showPanel = loc ? S.me.envoye : (S.me.envoye || S.localWrite);
-  h+= !showPanel ? '' : `<div class="panel" style="margin-top:24px;max-width:760px">
-    ${loc?`<p class="sent-line">${BIN(44,'hop')}<span>Copiez ce code et collez-le dans le fil de l'atelier.</span></p>`:S.me.envoye?`<p class="sent-line">${BIN(44,'hop')}<span class="pill ok">✓ Choix envoyés</span></p>`:''}
+  const prenom=esc(S.me.prenom||'');
+  h+= !showPanel ? '' : `<div class="sent-zone">
+    ${loc?sentBubble(`Merci ${prenom} ! Copie ce code et colle-le dans le fil de l'atelier.`):S.me.envoye?sentBubble(`C'est envoyé, merci ${prenom} !`):''}
     ${S.localWrite?`<h3 style="margin:18px 0 6px">${loc?'Mon code':'Votre code à envoyer à Lucas'}</h3><textarea class="code" id="my-code" readonly>${esc(myCode())}</textarea><div class="form-actions"><button class="btn sec sm" data-act="copy-code">Copier mon code</button></div>`:''}
   </div>`;
-  el.innerHTML+=h; bindDrag();
-  const tn=$('#top-nav'); if(tn) tn.innerHTML=stepNav({to:'jours',label:'Répartir les jours'},{act:'send',label:loc?(S.me.envoye?'Mon code est à jour':'Obtenir mon code'):(S.me.envoye?'Renvoyer mes choix':'Envoyer mes choix'),disabled:!fits()||needName||(loc&&S.me.envoye)});
+  el.innerHTML=h; bindDrag();
+  const manque=topBesoin()-top.length;
+  const tn=$('#top-nav'); if(tn) tn.innerHTML=(manque>0?`<p class="small" style="margin:24px 0 -36px;text-align:right">Encore ${manque} ${plural(manque,'projet','projets')} à placer dans le top.</p>`:'')+stepNav({to:'jours',label:'Répartir les jours'},{act:'send',label:loc?(S.me.envoye?'Mon code est à jour':'Obtenir mon code'):(S.me.envoye?'Renvoyer mes choix':'Envoyer mes choix'),disabled:!fits()||needName||manque>0||(loc&&S.me.envoye)});
 }
-function setOrder(list){ S.me.top=list.slice(0,TOP_N); S.me.garde=list.slice(); changed(); fillTop(); renderSteps(); }
+function setOrder(list){ S.me.top=uniq(list).slice(0,TOP_N); changed(); fillTop(); renderSteps(); }
+function placeAt(id, pos){ const t=topList().filter(x=>x!==id); t.splice(Math.max(0,Math.min(pos,t.length)),0,id); setOrder(t); }
 function move(id,d){ const s=topList(); const i=s.indexOf(id), j=i+d; if(i<0||j<0||j>=s.length) return; [s[i],s[j]]=[s[j],s[i]]; setOrder(s);
   const b=document.querySelector(`button[data-act="${d<0?'up':'down'}"][data-id="${cssEsc(id)}"]`); if(b&&!b.disabled) b.focus(); announce('Position '+(j+1)); }
 function bindDrag(){
   let dragId=null;
-  document.querySelectorAll('#top-body .rank').forEach(ol=>{
-    ol.addEventListener('dragstart',e=>{ const li=e.target.closest('li'); if(!li) return; dragId=li.dataset.id; li.classList.add('drag'); try{e.dataTransfer.setData('text/plain',dragId); e.dataTransfer.effectAllowed='move';}catch(_){} });
-    ol.addEventListener('dragend',()=>document.querySelectorAll('#top-body .rank li').forEach(l=>l.classList.remove('drag','over')));
-    ol.addEventListener('dragover',e=>{ e.preventDefault(); const li=e.target.closest('li'); document.querySelectorAll('#top-body .rank li.over').forEach(l=>l.classList.remove('over')); if(li&&li.dataset.id!==dragId) li.classList.add('over'); });
-    ol.addEventListener('drop',e=>{ e.preventDefault(); const li=e.target.closest('li'); if(!li||!dragId||li.dataset.id===dragId) return; const s=topList().filter(x=>x!==dragId); s.splice(s.indexOf(li.dataset.id),0,dragId); setOrder(s); });
+  const clear=()=>document.querySelectorAll('#top-body .over,#top-body .drag').forEach(n=>n.classList.remove('over','drag'));
+  document.querySelectorAll('#top-body [draggable="true"]').forEach(it=>{
+    it.addEventListener('dragstart',e=>{ dragId=it.dataset.id; it.classList.add('drag'); try{ e.dataTransfer.setData('text/plain',dragId); e.dataTransfer.effectAllowed='move'; }catch(_){} });
+    it.addEventListener('dragend',()=>{ dragId=null; clear(); });
+  });
+  document.querySelectorAll('#top-body [data-drop]').forEach(z=>{
+    z.addEventListener('dragover',e=>{ if(!dragId) return; e.preventDefault(); clear(); z.classList.add('over'); const s=document.querySelector(`#top-body [data-id="${cssEsc(dragId)}"]`); if(s) s.classList.add('drag'); });
+    z.addEventListener('dragleave',e=>{ if(!z.contains(e.relatedTarget)) z.classList.remove('over'); });
+    z.addEventListener('drop',e=>{ e.preventDefault(); const id=dragId; dragId=null; clear(); if(!id) return;
+      if(z.dataset.drop==='pool'){ if(topList().includes(id)){ setOrder(topList().filter(x=>x!==id)); announce('Retiré du top.'); } return; }
+      const pos=Number(z.dataset.pos)||0; placeAt(id,pos); announce('Position '+(Math.min(pos,topList().length-1)+1)+'.'); });
   });
 }
 
@@ -1349,10 +1398,11 @@ document.addEventListener('click', e=>{
   else if(act==='to-top') go('top');
   else if(act==='go'){ e.preventDefault(); go(b.dataset.to); }
   else if(act==='name-ok') submitName();
-  else if(act==='swap5'){ const sel=$('#swap-sel'); if(!sel) return; const s=topList(); const k=s.indexOf(sel.value); if(k<TOP_N) return; const out=s[TOP_N-1]; s[TOP_N-1]=sel.value; s[k]=out; setOrder(s); announce('« '+byId()[sel.value].titre+' » est n°'+TOP_N+'.'); }
+  else if(act==='top-add'){ const t=topList(); if(t.length>=TOP_N) return; placeAt(id,t.length); announce('Ajouté en position '+(t.length+1)+'.'); const nx=document.querySelector('#pool [data-act="top-add"]:not([disabled])'); if(nx) nx.focus(); }
+  else if(act==='top-rm'){ setOrder(topList().filter(x=>x!==id)); announce('Retiré du top.'); }
   else if(act==='up') move(id,-1);
   else if(act==='down') move(id,1);
-  else if(act==='send'){ if(!S.me.prenom.trim()||!fits()) return; S.me.top=topList().slice(0,TOP_N); S.me.envoye=true; saveMe(); if(S.mode==='shared'&&!S.localWrite){ clearTimeout(saveTimer); flushMe(); } announce(S.mode==='local'?'Code prêt.':'Choix envoyés.'); fillTop(); if(S.mode==='local'){ const c=$('#my-code'); if(c) c.focus(); } renderSteps(); }
+  else if(act==='send'){ if(!S.me.prenom.trim()||!fits()||!topComplet()) return; S.me.top=topList().slice(0,TOP_N); S.me.envoye=true; saveMe(); if(S.mode==='shared'&&!S.localWrite){ clearTimeout(saveTimer); flushMe(); } announce(S.mode==='local'?'Code prêt.':'Choix envoyés.'); fillTop(); if(S.mode==='local'){ const c=$('#my-code'); if(c) c.focus(); } renderSteps(); }
   else if(act==='copy-code'){ const t=$('#my-code'); t.select(); try{ navigator.clipboard.writeText(t.value).then(()=>{b.textContent='Code copié ✓';},()=>announce('Sélectionnez le code et copiez-le.')); }catch(_){ announce('Sélectionnez le code et copiez-le.'); } }
   else if(act==='copy-syn'){ try{ navigator.clipboard.writeText(synTsv()).then(()=>{b.textContent='Tableau copié ✓';},()=>{b.textContent='Copie refusée par le navigateur';}); }catch(_){ b.textContent='Copie refusée par le navigateur'; } }
   else if(act==='import') doImport();
