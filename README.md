@@ -3,7 +3,9 @@
 Outil d'atelier pour l'équipe Que faire de mes objets et déchets (séminaire du 30 novembre 2026).
 Chacun lit les projets possibles et en propose jusqu'à 5, trie (garder ou retirer) sans notion de coût, puis répartit les jours de chaque métier (Dev, Design / PO, Contenu & SEO) sur les projets gardés, par demi-journée, dans la limite du temps et du budget de l'équipe. Enfin, chacun classe son top 5.
 
-Tous les projets partent de zéro jour. Le temps incompressible est déjà compté. Le coût = jours × coût d'une journée du métier, affiché en trimaniaques, la monnaie de l'atelier (1 000 € = 100 trimaniaques).
+Tous les projets partent de zéro jour. Le temps incompressible est déjà compté. Le coût = jours × coût d'une journée du métier, affiché en trimaniak, la monnaie de l'atelier (1 000 € = 100 trimaniak).
+
+Ressources 2027 : Dev 118 j à 941 € (94,1 trimaniak), Design / PO 59 j à 739 € (73,9 trimaniak), Contenu & SEO 70 j à 739 € (73,9 trimaniak). Budget : 206 369 € = 20 637 trimaniak.
 
 ## Pendant l'atelier
 
@@ -19,7 +21,8 @@ Les choix restent dans le navigateur de chacun (localStorage) : aucune donnée n
 
 - Liste des projets, rôles, jours disponibles et coût d'une journée (`tjm`) : `src/seed.json`
 - Budget annuel en euros : `budget` dans `src/seed.json` (`null` = jours × coût d'une journée)
-- Monnaie de l'atelier : `monnaie` et `taux` (trimaniaques par euro) dans `src/seed.json`
+- Monnaie de l'atelier : `monnaie` et `taux` (trimaniak par euro) dans `src/seed.json`
+- Son des boutons : `src/halo-space.mp3`, extrait du son « halo-space » de [Button Sounds](https://buttons.joshwcomeau.com) de Josh Comeau (licence MIT). Chacun peut couper le son avec « Son activé » en haut à droite.
 - Interface : `src/template.html`
 - Puis reconstruire la page : `python3 build.py` (génère `index.html`)
 

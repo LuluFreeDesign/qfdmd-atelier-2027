@@ -1,12 +1,12 @@
 {
  "config": {
-  "version": 3,
+  "version": 4,
   "roles": [
    {
     "code": "DEV",
     "label": "Développeur front / back",
     "court": "Dev",
-    "jours": 116,
+    "jours": 118,
     "poids": 3,
     "note": "2,5 j/sem toute l'année",
     "tjm": 941
@@ -15,7 +15,7 @@
     "code": "DES",
     "label": "Designer / PO",
     "court": "Design / PO",
-    "jours": 58,
+    "jours": 59,
     "poids": 1,
     "note": "1,25 j/sem toute l'année",
     "tjm": 739
@@ -24,24 +24,16 @@
     "code": "SEO",
     "label": "Chargée de contenu & SEO",
     "court": "Contenu & SEO",
-    "jours": 69,
+    "jours": 70,
     "poids": 1,
     "note": "1,5 j/sem toute l'année",
     "tjm": 739
    }
   ],
-  "tailles": {
-   "XS": 2,
-   "S": 5,
-   "M": 10,
-   "L": 20,
-   "XL": 40,
-   "XXL": 60
-  },
   "maxAjouts": 5,
-  "budget": 203009,
+  "budget": null,
   "taux": 0.1,
-  "monnaie": "trimaniaques"
+  "monnaie": "trimaniak"
  },
  "projets": [
   {
@@ -53,8 +45,8 @@
    "contient": [],
    "precis": true,
    "efforts": {
-    "DES": "S",
-    "SEO": "XS"
+    "DES": 5,
+    "SEO": 2
    }
   },
   {
@@ -66,8 +58,8 @@
    "contient": [],
    "precis": true,
    "efforts": {
-    "DEV": "M",
-    "DES": "XS"
+    "DEV": 10,
+    "DES": 2
    }
   },
   {
@@ -78,7 +70,6 @@
    "desc": "Efforts réguliers pour rester conformes aux exigences beta.gouv.",
    "contient": [],
    "precis": true,
-   "taille": "L",
    "roles": [
     "DEV",
     "DES"
@@ -97,9 +88,9 @@
    "contient": [],
    "precis": true,
    "efforts": {
-    "DEV": "S",
+    "DEV": 5,
     "DES": 8,
-    "SEO": "S"
+    "SEO": 5
    }
   },
   {

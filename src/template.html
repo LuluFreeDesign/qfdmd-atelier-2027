@@ -360,9 +360,25 @@ h1{font-size:22px;line-height:1.2}
 .legend{margin-top:10px}
 
 /* ===== Répartir les jours ===== */
-.alloc-head{position:sticky;top:var(--nav-h,58px);z-index:20;background:#fff;padding:14px 0 12px;border-bottom:2px solid #000;margin:0 -2px}
-.alloc-head .banner{margin:12px 0 0}
-.alloc-head .legend{margin-top:8px}
+.alloc-head{position:sticky;top:var(--nav-h,58px);z-index:20;background:var(--vert-fonce);color:#fff;padding:16px 20px 14px;margin:0 -20px;border-radius:0 0 8px 8px;box-shadow:0 10px 24px -10px rgba(0,0,0,.5)}
+.alloc-head .banner{margin:12px 0 0;background:#fff;color:#000;border-radius:4px}
+.alloc-head .legend{margin-top:10px;color:#d8ece8}
+/* Bloc sticky en vert foncé : jauges et textes repassés en clair pour le contraste */
+.alloc-head .muted,.alloc-head .ag-st{color:#d8ece8}
+.alloc-head .ag.full .ag-st,.alloc-head .ag.over .ag-st{color:#FFB4AE}
+.alloc-head .ag.full .g-track{outline-color:#FFB4AE}
+.alloc-head .g-track{background:rgba(255,255,255,.22)}
+.alloc-head .g-inc,.alloc-head .lg-inc{background:repeating-linear-gradient(135deg,#fff 0 1.5px,transparent 1.5px 5px)}
+.alloc-head .g-sel,.alloc-head .lg-sel{background:#fff}
+.alloc-head .g-over,.alloc-head .lg-over{background:repeating-linear-gradient(45deg,#FF8A82 0 3px,transparent 3px 5px,#FF8A82 5px 8px)}
+.alloc-head .g-cap{background:#FFB4AE}
+.alloc-head .legend i{outline:1px solid rgba(255,255,255,.5)}
+.cur{white-space:nowrap}
+.son-btn{border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;color:var(--encre-2);cursor:pointer;padding:6px 4px;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+.son-btn::before{content:"♪ ";text-decoration:none}
+.son-btn[aria-pressed="false"]{color:#595959}
+.son-btn:hover{color:var(--vert)}
+.son-btn:focus-visible{outline:3px solid var(--vert);outline-offset:2px}
 .acards{display:flex;flex-direction:column;gap:16px}
 .acard{border:2px solid #8f8f8f;border-radius:4px;padding:16px 20px;background:#fff;display:flex;flex-direction:column;gap:10px}
 .acard.zero{border-style:dashed;border-color:#000}
@@ -395,7 +411,7 @@ h1{font-size:22px;line-height:1.2}
 .inc-rows li{background:repeating-linear-gradient(135deg,#fff 0 9px,#f6f6f6 9px 11px)}
 @media (max-width:900px){ .agrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 20px} }
 @media (max-width:640px){
-  .alloc-head{padding:10px 0}
+  .alloc-head{padding:10px 12px;margin:0 -12px}
   .alloc-head .legend{display:none}
   .ag-st{font-size:12px}
   .ag:not(.full):not(.over) .ag-st{display:none}
@@ -419,6 +435,7 @@ h1{font-size:22px;line-height:1.2}
   </div>
   <div class="me">
     <span id="who"></span>
+    <button type="button" class="son-btn" id="son-toggle" aria-pressed="true" data-nosound>Son activé</button>
     <span id="mode-badge" class="pill">Connexion…</span>
   </div>
 </header>
@@ -461,18 +478,18 @@ const S = {
 const $ = (s, el) => (el||document).querySelector(s);
 const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt = n => (Math.round(n*10)/10).toString().replace('.', ',');
-/* Monnaie de l'atelier : les calculs restent en euros, l'affichage est converti (1 000 € = 100 trimaniaques) */
+/* Monnaie de l'atelier : les calculs restent en euros, l'affichage est converti (1 000 € = 100 trimaniak) */
 const NUM = (()=>{ try{ return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:0}); }catch(e){ return {format:n=>String(Math.round(n))}; } })();
 function taux(){ const x=Number(cfg().taux); return isFinite(x)&&x>0 ? x : (Number(SEED.config.taux)||0.1); }
-function monnaie(){ return String(cfg().monnaie||SEED.config.monnaie||'trimaniaques'); }
+function monnaie(){ return String(cfg().monnaie||SEED.config.monnaie||'trimaniak'); }
 function monnaieSing(){ return monnaie().replace(/s$/,''); }
 function tm(e){ return (e||0)*taux(); }
 const eur = n => { const v=Math.round(tm(n)); return NUM.format(v)+'\u00a0'+(Math.abs(v)>1?monnaie():monnaieSing()); };
 const eurNu = n => NUM.format(Math.round(tm(n)));
 const eurJour = n => fmt(tm(n))+'\u00a0'+monnaie();
-/* Version affichée : valeur suivie du logo de la monnaie (le mot reste pour les lecteurs d'écran) */
+/* Version affichée : valeur suivie du logo de la monnaie, puis du mot en gras (le logo est décoratif) */
 const COIN_SRC = '__COIN__';
-const coin = () => `<img class="coin" src="${COIN_SRC}" alt="${esc(monnaie())}" width="20" height="20">`;
+const coin = () => `<span class="cur"><img class="coin" src="${COIN_SRC}" alt="" width="20" height="20"> <b>${esc(monnaie())}</b></span>`;
 const eurH = n => NUM.format(Math.round(tm(n)))+'\u00a0'+coin();
 const eurJourH = n => fmt(tm(n))+'\u00a0'+coin();
 const plural = (n, a, b) => n>1 ? b : a;
@@ -485,14 +502,14 @@ function announce(t){ const l=$('#live'); l.textContent=''; setTimeout(()=>{l.te
 function cssEsc(s){ return (window.CSS && CSS.escape) ? CSS.escape(s) : String(s).replace(/["\\]/g,'\\$&'); }
 
 /* ---------- Modèle ---------- */
-function cfg(){ return (S.config && Array.isArray(S.config.roles) && S.config.roles.length && S.config.tailles) ? S.config : SEED.config; }
+function cfg(){ return (S.config && Array.isArray(S.config.roles) && S.config.roles.length) ? S.config : SEED.config; }
 function roles(){ return cfg().roles; }
 function roleCodes(){ return roles().map(r=>r.code); }
 function role(code){ return roles().find(r=>r.code===code) || {code, label:code, court:code, jours:0, poids:1}; }
 function court(code){ const r=role(code); return r.court||r.label; }
 function maxAjouts(){ return Number(cfg().maxAjouts)||5; }
 function sizes(){
-  const t = cfg().tailles;
+  const t = cfg().tailles || SEED.config.tailles || {};
   return Object.keys(t).sort((a,b)=>{ const ia=SIZE_ORDER.indexOf(a), ib=SIZE_ORDER.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib) || (Number(t[a])-Number(t[b])); }).map(k=>[k, Number(t[k])||0]);
 }
 function tailleJ(t){ if(typeof t==='number') return isFinite(t)&&t>=0?t:0; const e=sizes().find(x=>x[0]===t); return e?e[1]:0; }
@@ -653,11 +670,11 @@ async function connect(){
   if(!uid || canW===false) S.localWrite=true;
   subscribe(); renderBadge(); renderBanners(); render(true);
 }
-function goLocal(){ S.mode='local'; S.isOwner=animateur(); S.localWrite=true; S.projetsLoaded=true; S.meLoaded=true; if(S.local.config) S.config=S.local.config; renderBadge(); renderBanners(); render(true); }
+function goLocal(){ S.mode='local'; S.isOwner=animateur(); S.localWrite=true; S.projetsLoaded=true; S.meLoaded=true; if(S.local.config && (Number(S.local.config.version)||0)>=(Number(SEED.config.version)||0)) S.config=S.local.config; renderBadge(); renderBanners(); render(true); }
 function subscribe(){
   let got=false;
   const timer=setTimeout(()=>{ if(!got){ S.note="La base partagée ne répond pas encore. Vérifiez votre connexion : la page se mettra à jour toute seule."; renderBanners(); } },10000);
-  S.db.doc('config/main').onSnapshot(snap=>{ if(snap.exists){ const d=snap.data(); if(d && Array.isArray(d.roles) && d.tailles) S.config=d; } render(); }, ()=>{});
+  S.db.doc('config/main').onSnapshot(snap=>{ if(snap.exists){ const d=snap.data(); if(d && Array.isArray(d.roles)) S.config=d; } render(); }, ()=>{});
   S.db.collection('projets').onSnapshot(snap=>{
     S.projetsDb=snap.docs.map(d=>cleanProjet(d.data(), d.id)).filter(Boolean);
     if(!snap.metadata.fromCache){ got=true; clearTimeout(timer); S.note=''; renderBanners(); }
@@ -953,7 +970,7 @@ function fillJours(){
     <div class="intro" style="margin-bottom:18px"><div><h1>Répartir les jours</h1>
       <p class="muted" style="margin:8px 0 0;max-width:70ch">Chaque projet gardé part de zéro. Indiquez combien de jours chaque métier y consacre, par demi-journée. Le temps incompressible est déjà compté. Si ça ne rentre pas, retirez des projets.</p></div></div>
     <div class="alloc-head" id="alloc-head"><div id="j-gauges"></div><div id="j-alert" role="status"></div></div>
-    <p class="small muted" style="margin:16px 0 0">Une journée coûte : ${rates}. Le budget est en ${esc(monnaie())} ${coin()}, la monnaie de l'atelier : 1 000 € = ${NUM.format(1000*taux())} ${esc(monnaie())}.</p>
+    <p class="small muted" style="margin:16px 0 0">Une journée coûte : ${rates}. Le budget est en ${coin()}, la monnaie de l'atelier : 1 000 € = ${NUM.format(1000*taux())} ${coin()}.</p>
     <section class="group" style="margin-top:24px"><div class="group-h"><h2>Mes projets gardés (${g.length})</h2></div>
       ${g.length?`<div class="acards">${g.map(id=>{ const p=m[id]; return `<article class="acard" data-card="${esc(p.id)}">
         <div class="acard-h"><div><h3>${esc(p.titre)}</h3>${p.desc?`<p class="small muted" style="margin:4px 0 0">${esc(p.desc)}</p>`:''}</div><button class="btn ghost" data-act="leave-j" data-id="${esc(p.id)}" aria-label="Retirer « ${esc(p.titre)} »">Retirer</button></div>
@@ -1143,8 +1160,6 @@ function renderSettings(){
     <table class="settings"><thead><tr><th class="small">Rôle</th><th class="small">Jours</th><th class="small">Coût jour (€)</th></tr></thead><tbody>${roles().map((r,i)=>`<tr><td><input class="lab" data-rl="${i}" value="${esc(r.label)}" aria-label="Nom du rôle ${i+1}"></td><td><input type="number" min="0" step="1" data-rj="${i}" value="${esc(r.jours)}" aria-label="Jours pour ${esc(r.label)}"></td><td><input type="number" min="0" step="10" data-rt="${i}" value="${esc(tjm(r.code))}" aria-label="Coût jour pour ${esc(r.label)}"></td></tr>`).join('')}</tbody></table>
     <h2 style="margin-top:18px">Budget annuel (€)</h2>
     <div class="field" style="max-width:220px;margin-top:8px"><label for="budget">Laisser vide pour : jours × coût jour</label><input type="number" min="0" step="1000" id="budget" value="${cfg().budget!=null&&cfg().budget!==''?esc(cfg().budget):''}" placeholder="${Math.round(roles().reduce((t,r)=>t+(Number(r.jours)||0)*tjm(r.code),0))}"></div>
-    <h2 style="margin-top:18px">Tailles (jours)</h2>
-    <table class="settings"><tbody><tr>${sizes().map(([k,v])=>`<td><label for="tz-${esc(k)}" class="small" style="font-weight:800">${esc(k)}</label><br><input type="number" min="0" step="0.5" id="tz-${esc(k)}" data-tz="${esc(k)}" value="${esc(v)}"></td>`).join('')}</tr></tbody></table>
     <h2 style="margin-top:18px">Ajouts par personne</h2>
     <div class="field" style="max-width:160px;margin-top:8px"><label for="max-aj">Maximum</label><input type="number" min="0" step="1" id="max-aj" value="${maxAjouts()}"></div>
     <p class="err" id="set-err" role="alert"></p>
@@ -1152,8 +1167,7 @@ function renderSettings(){
 }
 async function saveSettings(){
   const rs=roles().map((r,i)=>Object.assign({},r,{label:(document.querySelector(`[data-rl="${i}"]`).value.trim()||r.label).slice(0,60), jours:Math.max(0,Number(document.querySelector(`[data-rj="${i}"]`).value)||0), tjm:Math.max(0,Number(document.querySelector(`[data-rt="${i}"]`).value)||0)}));
-  const tz={}; document.querySelectorAll('[data-tz]').forEach(inp=>{ tz[inp.dataset.tz]=Math.max(0,Number(inp.value)||0); });
-  const bv=$('#budget').value.trim(); const c=Object.assign({}, cfg(), {roles:rs, tailles:tz, maxAjouts:Math.max(0,Math.round(Number($('#max-aj').value)||0)), budget: bv===''?null:Math.max(0,Number(bv)||0)}); const msg=$('#set-err');
+  const bv=$('#budget').value.trim(); const c=Object.assign({}, cfg(), {roles:rs, maxAjouts:Math.max(0,Math.round(Number($('#max-aj').value)||0)), budget: bv===''?null:Math.max(0,Number(bv)||0)}); const msg=$('#set-err');
   if(S.localWrite){ S.local.config=c; S.config=c; lsSave(); }
   else { try{ await S.db.doc('config/main').set(c); S.config=c; }catch(e){ msg.textContent='Enregistrement impossible.'; return; } }
   msg.style.color='var(--vert-fonce)'; msg.textContent='Réglages enregistrés.'; announce('Réglages enregistrés.');
@@ -1164,6 +1178,50 @@ function submitName(){
   if(!v){ err.textContent='Indiquez votre prénom.'; $('#name-input').focus(); return; }
   S.me.prenom=v; renderWho(); saveMe(); go('projets');
 }
+/* ---------- Sons des boutons ----------
+   Son « halo-space » de la collection Button Sounds de Josh Comeau (licence MIT) : https://buttons.joshwcomeau.com
+   Un seul fichier contient 7 prises : chacune a un son d'appui (à i s, 190 ms) et un son de relâchement (à i s + 200 ms, 790 ms).
+   On tire une prise au hasard à chaque fois pour que le clic ne sonne jamais pareil. */
+const SON = { src:'__SOUND__', prises:7, volume:0.4, ctx:null, buf:null, chargement:null };
+function sonActif(){ try{ return localStorage.getItem(LS_KEY+'-son')!=='0'; }catch(e){ return true; } }
+function majBoutonSon(){ const b=$('#son-toggle'); if(!b) return; const on=sonActif(); b.setAttribute('aria-pressed', on?'true':'false'); b.textContent = on ? 'Son activé' : 'Son coupé'; }
+function sonCharger(){
+  if(SON.chargement) return SON.chargement;
+  const AC = window.AudioContext||window.webkitAudioContext; if(!AC || SON.src.indexOf('data:')!==0) return Promise.resolve(null);
+  try{ SON.ctx = new AC(); }catch(e){ return Promise.resolve(null); }
+  const bin = atob(SON.src.split(',')[1]); const arr = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+  SON.chargement = new Promise(res=>{ try{ SON.ctx.decodeAudioData(arr.buffer, b=>{ SON.buf=b; res(b); }, ()=>res(null)); }catch(e){ res(null); } });
+  return SON.chargement;
+}
+function sonJouer(relache){
+  if(!sonActif()) return;
+  sonCharger().then(buf=>{
+    if(!buf || !SON.ctx) return; const ctx=SON.ctx; if(ctx.state==='suspended') ctx.resume();
+    const i = 1+Math.floor(Math.random()*SON.prises); const debut = relache ? i+0.2 : i; const duree = relache ? 0.79 : 0.19;
+    const src = ctx.createBufferSource(); src.buffer = buf; src.playbackRate.value = 0.97+Math.random()*0.06;
+    const g = ctx.createGain(); g.gain.value = SON.volume; src.connect(g); g.connect(ctx.destination);
+    src.start(0, debut, duree);
+  });
+}
+const SON_CIBLES = 'button, .btn, a.owner-link, .quest a, [role="button"]';
+function sonCible(e){ const t = e.target.closest && e.target.closest(SON_CIBLES); if(!t || t.disabled || t.getAttribute('aria-disabled')==='true') return null; return t; }
+document.addEventListener('pointerdown', e=>{
+  if(e.button>0) return; const t=sonCible(e); if(!t || t.id==='son-toggle') return;
+  sonJouer(false);
+  window.addEventListener('pointerup', ()=>sonJouer(true), {once:true});
+}, true);
+/* Au clavier (Entrée, Espace), le clic arrive sans pointeur : on joue l'appui puis le relâchement */
+document.addEventListener('click', e=>{
+  if(e.detail!==0) return; const t=sonCible(e); if(!t || t.id==='son-toggle') return;
+  sonJouer(false); setTimeout(()=>sonJouer(true), 90);
+}, true);
+document.addEventListener('click', e=>{
+  if(!e.target.closest || !e.target.closest('#son-toggle')) return;
+  const on=!sonActif(); try{ localStorage.setItem(LS_KEY+'-son', on?'1':'0'); }catch(err){}
+  majBoutonSon(); announce(on?'Sons activés.':'Sons coupés.'); if(on) sonJouer(false);
+});
+majBoutonSon();
+
 /* ---------- Événements ---------- */
 document.addEventListener('click', e=>{
   const b=e.target.closest('[data-act]'); if(!b) return;
