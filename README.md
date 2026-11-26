@@ -7,6 +7,10 @@ Tous les projets partent de zéro jour. Le temps incompressible est déjà compt
 
 Ressources 2027 : Dev 118 j à 941 € (94,1 trimaniak), Design / PO 59 j à 739 € (73,9 trimaniak), Contenu & SEO 70 j à 739 € (73,9 trimaniak). Budget : 206 369 € = 20 637 trimaniak.
 
+Dans chaque projet, une durée estimée en semaines : le métier le plus chargé, à son rythme (Dev 2,5 j/sem, Design / PO 1 j puis 1,5 j une semaine sur deux, Contenu & SEO 1,5 j/sem). Rythmes modifiables via `parSemaine` dans `src/seed.json`.
+
+La poubelle Que faire présente l'atelier en pleine page après le prénom, puis présente les trimaniak avant « Répartir les jours » (une seule fois par navigateur). Textes dans `STORIES`, dans `src/template.html`.
+
 ## Pendant l'atelier
 
 - **Participants** : https://lulufreedesign.github.io/qfdmd-atelier-2027/

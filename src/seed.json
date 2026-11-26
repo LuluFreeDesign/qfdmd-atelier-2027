@@ -1,6 +1,6 @@
 {
  "config": {
-  "version": 4,
+  "version": 5,
   "roles": [
    {
     "code": "DEV",
@@ -9,7 +9,8 @@
     "jours": 118,
     "poids": 3,
     "note": "2,5 j/sem toute l'année",
-    "tjm": 941
+    "tjm": 941,
+    "parSemaine": 2.5
    },
    {
     "code": "DES",
@@ -17,8 +18,9 @@
     "court": "Design / PO",
     "jours": 59,
     "poids": 1,
-    "note": "1,25 j/sem toute l'année",
-    "tjm": 739
+    "note": "1 j puis 1,5 j, une semaine sur deux",
+    "tjm": 739,
+    "parSemaine": 1.25
    },
    {
     "code": "SEO",
@@ -27,7 +29,8 @@
     "jours": 70,
     "poids": 1,
     "note": "1,5 j/sem toute l'année",
-    "tjm": 739
+    "tjm": 739,
+    "parSemaine": 1.5
    }
   ],
   "maxAjouts": 5,
